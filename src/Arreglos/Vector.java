@@ -63,6 +63,26 @@ public class Vector {
         return producto;
     }
 
+    // Magnitud del vector (norma Euclidiana)
+    public double magnitude() {
+        double suma = 0;
+        for (int i = 0; i < size; i++) {
+            suma += vector[i] * vector[i];
+        }
+        return Math.sqrt(suma);
+    }
+
+    // Similitud del coseno entre dos vectores
+    public double cosineSimilarity(Vector otro) {
+        double numerador = this.productoPunto(otro);
+        double denominador = this.magnitude() * otro.magnitude();
+
+        if (denominador == 0) {
+            throw new ArithmeticException("No se puede calcular cosineSimilarity con vector de magnitud 0");
+        }
+        return numerador / denominador;
+    }
+
     public String mostrar() {
         String cadena = "[";
         for (int i = 0; i < size; i++) {

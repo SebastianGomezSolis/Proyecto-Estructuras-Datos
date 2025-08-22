@@ -82,6 +82,19 @@ public class ListaDobleCircular<T> {
         } while (actual != root);
     }
 
+    public int tamano() {
+        if (vacia()) {
+            return 0;
+        }
+        int contador = 0;
+        Nodo<T> actual = root;
+        do {
+            contador++;
+            actual = actual.getSiguiente();
+        } while (actual != root);
+        return contador;
+    }
+
     // Metodo para imprimir toda la lista
     public void imprimir() {
         if (vacia()) {
