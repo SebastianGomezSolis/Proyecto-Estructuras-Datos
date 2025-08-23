@@ -1,4 +1,6 @@
 package Arreglos;
+import Indice.TerminoEntry;
+
 import java.util.Comparator;
 
 public class ListaDobleCircular<T> {
@@ -144,6 +146,38 @@ public class ListaDobleCircular<T> {
         cola.setSiguiente(nuevo);
         root.setAnterior(nuevo);
     }
+
+    // Cuenta nodos
+    public int contarNodos() {
+        return tamano();
+    }
+
+    // Ordena descendente (Bubble sort)
+    public void ordenarPorFrecuencia() {
+        if (vacia()) return;
+
+        boolean cambiado;
+        do {
+            cambiado = false;
+            Nodo<T> actual = root;
+            do {
+                Nodo<T> siguiente = actual.getSiguiente();
+                if (siguiente != root) {
+                    TerminoEntry a = (TerminoEntry) actual.getDato();
+                    TerminoEntry b = (TerminoEntry) siguiente.getDato();
+
+                    if (a.getVeces() < b.getVeces()) {
+                        // Intercambiamos solo los datos
+                        actual.setDato((T) b);
+                        siguiente.setDato((T) a);
+                        cambiado = true;
+                    }
+                }
+                actual = actual.getSiguiente();
+            } while (actual != root);
+        } while (cambiado);
+    }
+
 
 
 }

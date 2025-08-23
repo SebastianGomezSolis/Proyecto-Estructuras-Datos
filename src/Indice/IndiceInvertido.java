@@ -4,15 +4,12 @@ import Arreglos.Documento;
 import Arreglos.ListaDobleCircular;
 import Arreglos.Nodo;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
 
 public class IndiceInvertido {
     private ListaDobleCircular<TerminoEntry> indice;
     private ListaDobleCircular<Documento> documentos;
 
-    //array basico
+    //array basico con algunas stopwords
     private String[] stopwords = {
             "el","la","de","que","y","a","en","un","es","se","no","te","lo","le",
             "da","su","por","son","con","para","al","del","los","las","uno","una",
@@ -26,17 +23,27 @@ public class IndiceInvertido {
         this.documentos = new ListaDobleCircular<>();
     }
 
+    //Aqui lo que se realiza es leer un txt y poder devolver un doc con id, content y ruta
     private Documento cargarDocumento(java.io.File archivo) {
+        // try-with-resources para cerrar el reader automáticamente, esto es incluso si ocurre alguna excepción
+        //BufferedReader es el recurso en este caso, esta es una clase que permite leer texto linea por linea de una forma eficiente
         try (java.io.BufferedReader reader = new java.io.BufferedReader(
+                // leemos como UTF-8
+                //FileReader sirve para abrir el archivo, archivo es un objeto file que apunta al archivo que queremos
+                //StandardCharsets.UTF_8, esto permite poder soportar caracteres especiales (tildes, ñ, etc)
                 new java.io.FileReader(archivo, java.nio.charset.StandardCharsets.UTF_8))) {
 
+            //aqui guardamos-acumulamos el texto
             StringBuilder contenido = new StringBuilder();
             String linea;
+
+            //leemos linea por linea
             while ((linea = reader.readLine()) != null) {
-                contenido.append(linea).append(" ");
+                contenido.append(linea).append(" "); //y aqui lo que realizamos es agregar la linea mas un espacio
             }
 
-            String id = archivo.getName();
+            String id = archivo.getName(); //le damos nombre al archivo
+            //creamos el documento con el texto completo y la ruta
             return new Documento(id, contenido.toString(), archivo.getAbsolutePath());
         } catch (Exception e) {
             return null;
@@ -156,27 +163,6 @@ public class IndiceInvertido {
         documentos = new ListaDobleCircular<>();
     }
 
-    public void aplicarLeyDeZipf(double percentil) {
-        if (indice.vacia() || percentil <= 0 || percentil >= 100) return;
-
-        List<TerminoEntry> listaOrdenada = new ArrayList<>();
-        Nodo<TerminoEntry> actual = indice.getRoot();
-        do {
-            listaOrdenada.add(actual.getDato());
-            actual = actual.getSiguiente();
-        } while (actual != indice.getRoot());
-
-        // Orden descendente por frecuencia
-        listaOrdenada.sort(Comparator.comparingInt(TerminoEntry::getVeces).reversed());
-
-        int limite = (int)(listaOrdenada.size() * (percentil/100.0));
-        ListaDobleCircular<TerminoEntry> nuevoIndice = new ListaDobleCircular<>();
-        for (int i = 0; i < limite; i++) {
-            nuevoIndice.insertar(listaOrdenada.get(i));
-        }
-        indice = nuevoIndice;
-    }
-
     public String mostrarEstadisticas() {
         int totalDocs = documentos.tamano();
         int totalTerminos = indice.tamano();
@@ -211,4 +197,29 @@ public class IndiceInvertido {
     }
 
     public String[] getStopwords() {return stopwords; }
+
+    public void aplicarLeyDeZipf(double percentil) {
+        if (indice.vacia() || percentil <= 0 || percentil >= 100) return;
+
+        // Ordenamos la lista descendente
+        indice.ordenarPorFrecuencia();
+
+        // Calculamos cuántos términos mantener
+        int total = indice.contarNodos();
+        int limite = (int)(total * (percentil / 100.0));
+
+        // Creamos un nuevo índice con solo esos términos
+        ListaDobleCircular<TerminoEntry> nuevoIndice = new ListaDobleCircular<>();
+        Nodo<TerminoEntry> actual = indice.getRoot();
+
+        for (int i = 0; i < limite; i++) {
+            nuevoIndice.insertar(actual.getDato());
+            actual = actual.getSiguiente();
+        }
+
+        indice = nuevoIndice;
+    }
+
+
+
 }
