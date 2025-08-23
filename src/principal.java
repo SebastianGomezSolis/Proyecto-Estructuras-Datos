@@ -2,9 +2,11 @@ import Arreglos.ListaDobleCircular;
 import Arreglos.Vector;
 import Indice.*;
 import Indice.ProcesarTexto;
+import Arreglos.Documento;
+import Arreglos.Nodo;
 
-public class principal {
-    public static void main(String[] args) {
+/*public class principal {
+    public static void main(String[] args) {*/
 //        ListaDobleCircular<Integer> lista = new ListaDobleCircular<>();
 //        lista.insertar(1);
 //        lista.insertar(2);
@@ -122,7 +124,7 @@ public class principal {
             System.out.println("No se encontró el término '" + termino + "'");
         }
     }*/
-        IndiceInvertido stop = new IndiceInvertido();
+       /* IndiceInvertido stop = new IndiceInvertido();
 
         ProcesarTexto p = new ProcesarTexto();
         String texto = "¡El Gato, comé Péscádo!";
@@ -138,6 +140,48 @@ public class principal {
             System.out.println(palabra);
 
         }
-    }
-}
+    }*/
+    public class principal {
+           public static void main(String[] args) {
+               // 1. Crear índice invertido
+               IndiceInvertido indice = new IndiceInvertido();
+
+               // 2. Crear algunos documentos de prueba
+               Documento doc1 = new Documento("doc1", "Java es un lenguaje de programación", "ruta1.txt");
+               Documento doc2 = new Documento("doc2", "Python y Java se usan para desarrollo web", "ruta2.txt");
+               Documento doc3 = new Documento("doc3", "C++ es más usado en sistemas embebidos que Java", "ruta3.txt");
+
+               // 3. Insertarlos en una lista
+               ListaDobleCircular<Documento> documentos = new ListaDobleCircular<>();
+               documentos.insertar(doc1);
+               documentos.insertar(doc2);
+               documentos.insertar(doc3);
+
+               // 4. Construir el índice
+               indice.construirIndice(documentos);
+
+               // 5. Crear el buscador
+               Buscador buscador = new Buscador(indice);
+
+               // 6. Consulta
+               String consulta = "python c++";
+
+               // 7. Buscar documentos relevantes
+               ListaDobleCircular<Documento> resultados = buscador.buscar(consulta);
+
+               // 8. Mostrar resultados
+               System.out.println("🔎 Resultados para la consulta: \"" + consulta + "\"\n");
+               if (resultados.vacia()) {
+                   System.out.println("No se encontraron documentos relevantes.");
+               } else {
+                   Nodo<Documento> actual = resultados.getRoot();
+                   do {
+                       Documento doc = actual.getDato();
+                       System.out.println("📄 " + doc.getId() + ": " + doc.getContenido());
+                       actual = actual.getSiguiente();
+                   } while (actual != resultados.getRoot());
+               }
+
+           }
+       }
 
