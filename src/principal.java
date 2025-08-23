@@ -1,5 +1,6 @@
 import Arreglos.ListaDobleCircular;
 import Arreglos.Vector;
+import Indice.*;
 
 public class principal {
     public static void main(String[] args) {
@@ -74,5 +75,51 @@ public class principal {
         System.out.println("v4 = " + v4.mostrar());
         System.out.println("Producto punto v3 · v4 = " + v3.productoPunto(v4)); // 32
 
+        // Crear el índice
+        IndiceInvertido indice = new IndiceInvertido();
+
+        // Cargar documentos desde la carpeta
+        String rutaCarpeta = "C:\\Users\\ashle\\Desktop\\Proyecto-Estructuras-Datos\\src\\Documentos";
+        ResultadosCargaDoc resultado = indice.cargarDocumentosDesdeRuta(rutaCarpeta);
+
+        if (resultado.isExito()) {
+            System.out.println("Carga exitosa!");
+            System.out.println(resultado.toString());
+            System.out.println(indice.mostrarEstadisticas());
+        } else {
+            System.out.println("No se pudieron cargar documentos");
+            System.out.println(resultado.toString());
+            return;
+        }
+
+        // --- Búsqueda antes de aplicar Ley de Zipf ---
+        System.out.println("\n--- Buscando antes de aplicar Ley de Zipf ---");
+        buscarTermino(indice, "java");
+        buscarTermino(indice, "clase");
+        buscarTermino(indice, "documento");
+
+        // Aplicar Ley de Zipf (ejemplo 5%)
+        indice.aplicarLeyDeZipf(5.0);
+        System.out.println("\nÍndice después de aplicar Ley de Zipf (5.0%):");
+        System.out.println(indice.mostrarEstadisticas());
+
+        // --- Búsqueda después de aplicar Ley de Zipf ---
+        System.out.println("\n--- Buscando después de aplicar Ley de Zipf ---");
+        buscarTermino(indice, "java");
+        buscarTermino(indice, "clase");
+        buscarTermino(indice, "documento");
+    }
+
+    // Método auxiliar para búsqueda y mostrar resultados
+    private static void buscarTermino(IndiceInvertido indice, String termino) {
+        System.out.println("\nBuscando término '" + termino + "'...");
+        ListaDobleCircular<String> docs = indice.buscar(termino);
+        if (!docs.vacia()) {
+            System.out.println("Documentos que contienen '" + termino + "':");
+            docs.imprimir();
+        } else {
+            System.out.println("No se encontró el término '" + termino + "'");
+        }
     }
 }
+
