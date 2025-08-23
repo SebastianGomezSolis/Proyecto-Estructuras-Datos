@@ -170,14 +170,14 @@ import Arreglos.Nodo;
                ListaDobleCircular<Documento> resultados = buscador.buscar(consulta);
 
                // 8. Mostrar resultados
-               System.out.println("🔎 Resultados para la consulta: \"" + consulta + "\"\n");
+               System.out.println(" Resultados para la consulta: \"" + consulta + "\"\n");
                if (resultados.vacia()) {
                    System.out.println("No se encontraron documentos relevantes.");
                } else {
                    Nodo<Documento> actual = resultados.getRoot();
                    do {
                        Documento doc = actual.getDato();
-                       System.out.println("📄 " + doc.getId() + ": " + doc.getContenido());
+                       System.out.println(" " + doc.getId() + ": " + doc.getContenido());
                        actual = actual.getSiguiente();
                    } while (actual != resultados.getRoot());
                }
