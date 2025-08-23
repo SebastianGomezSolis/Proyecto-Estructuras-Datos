@@ -209,4 +209,6 @@ public class IndiceInvertido {
     public ListaDobleCircular<Documento> getDocumentos() {
         return documentos;
     }
+
+    public String[] getStopwords() {return stopwords; }
 }

@@ -1,6 +1,7 @@
 import Arreglos.ListaDobleCircular;
 import Arreglos.Vector;
 import Indice.*;
+import Indice.ProcesarTexto;
 
 public class principal {
     public static void main(String[] args) {
@@ -28,7 +29,7 @@ public class principal {
 //        System.out.println("Lista despues de modificar el elemento 1");
 //        lista.imprimir();
 
-        Vector v1 = new Vector(3);
+       /* Vector v1 = new Vector(3);
         Vector v2 = new Vector(3);
 
         // Insertar datos en v1
@@ -119,6 +120,23 @@ public class principal {
             docs.imprimir();
         } else {
             System.out.println("No se encontró el término '" + termino + "'");
+        }
+    }*/
+        IndiceInvertido stop = new IndiceInvertido();
+
+        ProcesarTexto p = new ProcesarTexto();
+        String texto = "¡El Gato, comé Péscádo!";
+        String[] tokens = p.tokenizar(texto);
+
+        for (String t : tokens) {
+            System.out.println(t);
+        }
+
+        System.out.println(p.normalizar(texto));
+        String[] palabras = p.textLimpio(texto, stop.getStopwords());
+        for (String palabra : palabras) {
+            System.out.println(palabra);
+
         }
     }
 }
