@@ -3,6 +3,7 @@ package Indice;
 import Arreglos.Documento;
 import Arreglos.ListaDobleCircular;
 import Arreglos.Nodo;
+import Arreglos.Vector;
 
 
 public class IndiceInvertido {
@@ -219,7 +220,51 @@ public class IndiceInvertido {
 
         indice = nuevoIndice;
     }
+    public double calcularIDF(String termino) {
+        int totalDocs = documentos.tamano();
+        if (totalDocs == 0) return 0;
 
+        TerminoEntry entrada = buscarEnIndice(termino);
+        if (entrada == null) return 0;
+
+        int docFreq = entrada.cuantosDocumentos();
+        if (docFreq == 0) return 0;
+
+        return Math.log((double) totalDocs / docFreq);
+    }
+    public Vector obtenerVectorDocumento(String docId) {
+        int size = indice.tamano();
+        Vector vector = new Vector(size);
+
+        Nodo<TerminoEntry> actual = indice.getRoot();
+        if (actual == null) return vector;
+
+        do {
+            TerminoEntry terminoEntry = actual.getDato();
+
+            int tf = 0;
+            ListaDobleCircular<String> docsIds = terminoEntry.getDocumentosIds();
+            Nodo<String> nodoDocId = docsIds.getRoot();
+
+            if (nodoDocId != null) {
+                do {
+                    if (nodoDocId.getDato().equals(docId)) {
+                        tf++;
+                    }
+                    nodoDocId = nodoDocId.getSiguiente();
+                } while (nodoDocId != docsIds.getRoot());
+            }
+
+            double idf = calcularIDF(terminoEntry.getTermino());
+            double valor = tf * idf;
+
+            vector.insertar(valor);
+
+            actual = actual.getSiguiente();
+        } while (actual != indice.getRoot());
+
+        return vector;
+    }
 
 
 }
