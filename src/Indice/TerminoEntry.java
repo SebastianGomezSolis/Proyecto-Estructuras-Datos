@@ -53,4 +53,16 @@ public class TerminoEntry {
     public String toString() {
         return termino + " (" + veces + " veces) en " + cuantosDocumentos() + " docs";
     }
+
+    public int compararAlfabeticamente(TerminoEntry otro) {
+        return this.termino.compareToIgnoreCase(otro.termino);
+    }
+
+    // Método que compara el término interno con otro término dado
+    public boolean esIgual(String otroTermino) {
+        // Ignora mayúsculas/minúsculas para que la búsqueda sea más flexible
+        return this.termino.equalsIgnoreCase(otroTermino);
+    }
+
+
 }
