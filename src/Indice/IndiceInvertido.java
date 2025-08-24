@@ -24,32 +24,6 @@ public class IndiceInvertido {
         this.documentos = new ListaDobleCircular<>();
     }
 
-    //Aqui lo que se realiza es leer un txt y poder devolver un doc con id, content y ruta
-    private Documento cargarDocumento(java.io.File archivo) {
-        // try-with-resources para cerrar el reader automáticamente, esto es incluso si ocurre alguna excepción
-        //BufferedReader es el recurso en este caso, esta es una clase que permite leer texto linea por linea de una forma eficiente
-        try (java.io.BufferedReader reader = new java.io.BufferedReader(
-                // leemos como UTF-8
-                //FileReader sirve para abrir el archivo, archivo es un objeto file que apunta al archivo que queremos
-                //StandardCharsets.UTF_8, esto permite poder soportar caracteres especiales (tildes, ñ, etc)
-                new java.io.FileReader(archivo, java.nio.charset.StandardCharsets.UTF_8))) {
-
-            //aqui guardamos-acumulamos el texto
-            StringBuilder contenido = new StringBuilder();
-            String linea;
-
-            //leemos linea por linea
-            while ((linea = reader.readLine()) != null) {
-                contenido.append(linea).append(" "); //y aquí lo que realizamos es agregar la línea más un espacio
-            }
-
-            String id = archivo.getName(); //le damos nombre al archivo
-            //creamos el documento con el texto completo y la ruta
-            return new Documento(id, contenido.toString(), archivo.getAbsolutePath());
-        } catch (Exception e) {
-            return null;
-        }
-    }
 
     // Procesa un documento y lo agrega a la lista de documentos (si no estaba)
     // y mete cada palabra al índice, filtrando stopwords
@@ -186,57 +160,6 @@ public class IndiceInvertido {
             actual = actual.getSiguiente();
             // Continuamos hasta volver al nodo inicial (lista circular)
         } while (actual != listaDocumentos.getRoot());
-    }
-
-
-    public ResultadosCargaDoc cargarDocumentosDesdeRuta(String rutaCarpeta) {
-        // Creamos un objeto File que apunta a la carpeta indicada
-        java.io.File carpeta = new java.io.File(rutaCarpeta);
-
-        // Verificamos que la carpeta exista y sea realmente un directorio
-        if (!carpeta.exists() || !carpeta.isDirectory())
-            return new ResultadosCargaDoc(0, 0, false); // si no es válida, devolvemos resultado vacío
-
-        // Obtenemos todos los archivos dentro de la carpeta
-        java.io.File[] archivos = carpeta.listFiles();
-
-        // Si no hay archivos, devolvemos resultado vacío
-        if (archivos == null || archivos.length == 0)
-            return new ResultadosCargaDoc(0, 0, false);
-
-        // Lista para almacenar los documentos que se pudieron cargar
-        ListaDobleCircular<Documento> docsCargados = new ListaDobleCircular<>();
-
-        // Contadores para seguimiento de documentos procesados y omitidos
-        int procesados = 0;
-        int omitidos = 0;
-
-        // Recorremos todos los archivos usando un for tradicional
-        for (int i = 0; i < archivos.length; i++) {
-            java.io.File archivoActual = archivos[i]; // archivo actual en la iteración
-
-            // Solo procesamos si es un archivo normal (no carpeta)
-            if (archivoActual.isFile()) {
-                // Intentamos leer el archivo y crear un objeto Documento
-                Documento documentoLeido = cargarDocumento(archivoActual);
-
-                if (documentoLeido != null) {
-                    docsCargados.insertar(documentoLeido); // agregamos a la lista
-                    procesados++; // incrementamos contador de procesados
-                } else {
-                    omitidos++; // si hubo error, contamos como omitido
-                }
-            } else {
-                omitidos++; // ignoramos carpetas u otros tipos de archivo
-            }
-        }
-
-        // Si procesamos al menos un documento, construimos el índice invertido
-        if (procesados > 0)
-            construirIndice(docsCargados);
-
-        // Retornamos un objeto con el resumen de la operación
-        return new ResultadosCargaDoc(procesados, omitidos, procesados > 0);
     }
 
 
