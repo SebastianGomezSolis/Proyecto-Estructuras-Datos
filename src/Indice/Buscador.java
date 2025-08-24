@@ -14,7 +14,6 @@ public class Buscador {
 
     }
 
-    // ordenar primero los terminos
     private TerminoEntry[] ordenar() {
         int totalTerminos = indice.getIndice().tamano();
         TerminoEntry[] arreglo = new TerminoEntry[totalTerminos];
@@ -137,5 +136,4 @@ public class Buscador {
         ordenarPorSimilitud(resultados, similitudes);
         return resultados;
     }
-
 }
