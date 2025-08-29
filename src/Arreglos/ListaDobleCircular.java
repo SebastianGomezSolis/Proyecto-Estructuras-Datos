@@ -1,9 +1,11 @@
 package Arreglos;
+
 import Indice.TerminoEntry;
 
 import java.util.Comparator;
+import java.util.Iterator;
 
-public class ListaDobleCircular<T> {
+public class ListaDobleCircular<T> implements Iterable<T> {
     private Nodo<T> root;
 
     // Constructor
@@ -178,6 +180,8 @@ public class ListaDobleCircular<T> {
         } while (cambiado);
     }
 
-
+    public Iterator<T> iterator() {
+        return new IteratorListaDobleCircular<>(this);
+    }
 
 }

@@ -5,7 +5,6 @@ import Arreglos.ListaDobleCircular;
 import Arreglos.Nodo;
 import Arreglos.Vector;
 
-
 public class IndiceInvertido {
     private static IndiceInvertido instance;
 
@@ -32,7 +31,6 @@ public class IndiceInvertido {
         }
         return instance;
     }
-
     // Procesa un documento y lo agrega a la lista de documentos (si no estaba)
     // y mete cada palabra al índice, filtrando stopwords
     private void procesarDocumento(Documento doc) {
@@ -330,8 +328,5 @@ public class IndiceInvertido {
             actual = actual.getSiguiente();
         } while (actual != nuevosDocs.getRoot());
     }
-
-
-
 
 }
