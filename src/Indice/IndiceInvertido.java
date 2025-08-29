@@ -21,7 +21,7 @@ public class IndiceInvertido {
             "algunos", "muchos", "mucho", "poco", "más", "menos", "ante", "bajo", "como", "sin"
     };
 
-    public IndiceInvertido() {
+    private IndiceInvertido() {
         this.indice = new ListaDobleCircular<>();
         this.documentos = new ListaDobleCircular<>();
     }
@@ -320,4 +320,18 @@ public class IndiceInvertido {
 
         return vector;
     }
+
+    public void actualizarIndice(ListaDobleCircular<Documento> nuevosDocs) {
+        if (nuevosDocs == null || nuevosDocs.vacia()) return;
+
+        Nodo<Documento> actual = nuevosDocs.getRoot();
+        do {
+            procesarDocumento(actual.getDato());
+            actual = actual.getSiguiente();
+        } while (actual != nuevosDocs.getRoot());
+    }
+
+
+
+
 }

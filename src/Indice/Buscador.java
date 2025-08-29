@@ -8,12 +8,18 @@ import Arreglos.Nodo;
 public class Buscador {
     private IndiceInvertido indice;
     private ProcesarTexto procesar;
+    private EstrategiaSimilitud estrategia;
 
     public Buscador(IndiceInvertido indice) {
         this.indice = indice;
         this.procesar = new ProcesarTexto();
-
+        this.estrategia = new SimilitudCoseno(); // Estrategia por defecto
     }
+
+    public void setEstrategia(EstrategiaSimilitud estrategia) {
+        this.estrategia = estrategia;
+    }
+
 
     private TerminoEntry[] ordenar() {
         int totalTerminos = indice.getIndice().tamano();
@@ -125,12 +131,13 @@ public class Buscador {
             Documento doc = actualDocumento.getDato();
             Vector vectorDoc = indice.obtenerVectorDocumento(doc.getId());
             if (vectorDoc != null) {
-                double sim = vectorConsulta.cosineSimilarity(vectorDoc);
+                double sim = estrategia.calcular(vectorConsulta, vectorDoc);
                 if (sim > 0) {
                     resultados.insertar(doc);
                     similitudes.insertar(sim);
                 }
             }
+
             actualDocumento = actualDocumento.getSiguiente();
         } while (actualDocumento != documentos.getRoot());
         //ordenar resultados por similitud
