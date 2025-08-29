@@ -7,6 +7,8 @@ import Arreglos.Vector;
 
 
 public class IndiceInvertido {
+    private static IndiceInvertido instance;
+
     private ListaDobleCircular<TerminoEntry> indice;
     private ListaDobleCircular<Documento> documentos;
 
@@ -24,6 +26,12 @@ public class IndiceInvertido {
         this.documentos = new ListaDobleCircular<>();
     }
 
+    public static IndiceInvertido getInstance() {
+        if (instance == null) {
+            instance = new IndiceInvertido();
+        }
+        return instance;
+    }
 
     // Procesa un documento y lo agrega a la lista de documentos (si no estaba)
     // y mete cada palabra al índice, filtrando stopwords

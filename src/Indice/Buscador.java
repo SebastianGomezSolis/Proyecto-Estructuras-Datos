@@ -1,4 +1,5 @@
 package Indice;
+
 import Arreglos.Documento;
 import Arreglos.ListaDobleCircular;
 import Arreglos.Vector;

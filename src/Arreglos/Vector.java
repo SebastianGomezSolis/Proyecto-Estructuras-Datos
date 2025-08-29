@@ -78,7 +78,7 @@ public class Vector {
         double denominador = this.magnitude() * otro.magnitude();
 
         if (denominador == 0) {
-            throw new ArithmeticException("No se puede calcular cosineSimilarity con vector de magnitud 0");
+            return 0.0;
         }
         return numerador / denominador;
     }

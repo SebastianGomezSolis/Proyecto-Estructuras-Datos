@@ -16,11 +16,9 @@ public class Documento {
     public String getId() {
         return id;
     }
-
     public String getContenido() {
         return contenido;
     }
-
     public String getRuta() {
         return ruta;
     }
@@ -32,5 +30,6 @@ public class Documento {
     public void setRelevancia(double relevancia) {
         this.relevancia = relevancia;
     }
+
 }
 
