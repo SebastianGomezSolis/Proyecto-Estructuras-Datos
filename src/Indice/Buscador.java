@@ -5,6 +5,8 @@ import Arreglos.ListaDobleCircular;
 import Arreglos.Vector;
 import Arreglos.Nodo;
 
+import java.util.Arrays;
+
 public class Buscador {
     private IndiceInvertido indice;
     private ProcesarTexto procesar;
@@ -65,10 +67,16 @@ public class Buscador {
         int size = ordenados.length;
         Vector vector = new Vector(size);
 
+        System.out.println("DEBUG - Términos en consulta: " + Arrays.toString(texto));
+        System.out.println("DEBUG - Términos en índice: " + ordenados.length);
+
         for (int i = 0; i < size; i++) {
             String termino = ordenados[i].getTermino();
             int tf = frecuencia(texto, termino);
             double idf = indice.calcularIDF(termino);
+
+            System.out.println("DEBUG - " + termino + ": TF=" + tf + ", IDF=" + idf);
+
             vector.insertar(tf * idf);
         }
         return vector;
@@ -134,6 +142,7 @@ public class Buscador {
             if (vectorDoc != null) {
                 double sim = estrategia.calcular(vectorConsulta, vectorDoc);
                 if (sim > 0) {
+                    doc.setRelevancia(sim); // ← ¡ESTA LÍNEA FALTA!
                     resultados.insertar(doc);
                     similitudes.insertar(sim);
                 }

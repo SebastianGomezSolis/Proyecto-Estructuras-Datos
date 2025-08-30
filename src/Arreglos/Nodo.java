@@ -1,6 +1,8 @@
 package Arreglos;
 
-public class Nodo<T> {
+import java.io.Serializable;
+
+public class Nodo<T> implements Serializable {
     private T dato;
     private Nodo<T> siguiente;
     private Nodo<T> anterior;

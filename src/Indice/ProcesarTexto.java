@@ -8,10 +8,22 @@ public class ProcesarTexto {
     }
 
     public String normalizar(String texto){
-        if(texto == null){ return ""; }
-        texto = texto.toLowerCase(); // minusculas
+        if(texto == null || texto.isEmpty()) {
+            return "";
+        }
+
+        // Convertir a minúsculas
+        texto = texto.toLowerCase();
+
+        // Normalizar para separar caracteres base de diacríticos (acentos)
         texto = Normalizer.normalize(texto, Normalizer.Form.NFD);
-        texto = texto.replaceAll("[^a-záéíóúñ]", ""); // tildes y puntuacion
+
+        // Eliminar TODOS los caracteres no ASCII (incluyendo acentos)
+        texto = texto.replaceAll("[^\\p{ASCII}]", "");
+
+        // Eliminar puntuación y caracteres especiales (opcional, por si acaso)
+        texto = texto.replaceAll("[^a-z0-9]", "");
+
         return texto;
     }
 

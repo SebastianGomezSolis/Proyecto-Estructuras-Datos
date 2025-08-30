@@ -3,7 +3,9 @@ package Indice;
 import Arreglos.ListaDobleCircular;
 import Arreglos.Nodo;
 
-public class TerminoEntry {
+import java.io.Serializable;
+
+public class TerminoEntry implements Serializable {
     private String termino;
     private ListaDobleCircular<String> documentosIds;
     private int veces;
@@ -62,6 +64,21 @@ public class TerminoEntry {
     public boolean esIgual(String otroTermino) {
         // Ignora mayúsculas/minúsculas para que la búsqueda sea más flexible
         return this.termino.equalsIgnoreCase(otroTermino);
+    }
+
+    public int getFrecuenciaEnDocumento(String docId) {
+        int count = 0;
+        if (documentosIds.vacia()) return 0;
+
+        Nodo<String> actual = documentosIds.getRoot();
+        do {
+            if (actual.getDato().equals(docId)) {
+                count++;
+            }
+            actual = actual.getSiguiente();
+        } while (actual != documentosIds.getRoot());
+
+        return count;
     }
 
 

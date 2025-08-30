@@ -1,6 +1,8 @@
 package Arreglos;
 
-public class Documento {
+import java.io.Serializable;
+
+public class  Documento implements Serializable {
     private String id;        // normalmente el nombre del archivo
     private String contenido; // texto completo del archivo
     private String ruta;      // ruta absoluta en disco

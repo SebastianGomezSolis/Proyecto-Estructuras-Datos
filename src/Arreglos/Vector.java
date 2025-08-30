@@ -1,6 +1,8 @@
 package Arreglos;
 
-public class Vector {
+import java.io.Serializable;
+
+public class Vector implements Serializable {
     private double[] vector;
     private int tam;
     private int size;
@@ -54,12 +56,15 @@ public class Vector {
 
     public double productoPunto(Vector otro) {
         if (this.size != otro.size) {
-            throw new IllegalArgumentException("los vectores poseen tamanios diferentes");
+            throw new IllegalArgumentException("Los vectores tienen tamaños diferentes");
         }
+
         double producto = 0;
         for (int i = 0; i < size; i++) {
             producto += this.vector[i] * otro.vector[i];
         }
+
+        System.out.println("DEBUG - Producto punto: " + producto);
         return producto;
     }
 
@@ -69,18 +74,26 @@ public class Vector {
         for (int i = 0; i < size; i++) {
             suma += vector[i] * vector[i];
         }
-        return Math.sqrt(suma);
+
+        double magnitud = Math.sqrt(suma);
+        System.out.println("DEBUG - Magnitud calculada: " + magnitud);
+        return magnitud;
     }
 
     // Similitud del coseno entre dos vectores
     public double cosineSimilarity(Vector otro) {
-        double numerador = this.productoPunto(otro);
-        double denominador = this.magnitude() * otro.magnitude();
+        System.out.println("DEBUG - Vector this: " + this.mostrar());
+        System.out.println("DEBUG - Vector otro: " + otro.mostrar());
 
-        if (denominador == 0) {
+        double numerator = this.productoPunto(otro);
+        double denominator = this.magnitude() * otro.magnitude();
+
+        System.out.println("DEBUG - Similitud: " + numerator + " / " + denominator);
+
+        if (denominator == 0) {
             return 0.0;
         }
-        return numerador / denominador;
+        return numerator / denominator;
     }
 
     public String mostrar() {

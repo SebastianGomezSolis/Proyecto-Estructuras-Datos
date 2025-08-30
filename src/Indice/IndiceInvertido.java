@@ -5,7 +5,9 @@ import Arreglos.ListaDobleCircular;
 import Arreglos.Nodo;
 import Arreglos.Vector;
 
-public class IndiceInvertido {
+import java.io.Serializable;
+
+public class IndiceInvertido implements Serializable {
     private static IndiceInvertido instance;
 
     private ListaDobleCircular<TerminoEntry> indice;
@@ -24,6 +26,7 @@ public class IndiceInvertido {
         this.indice = new ListaDobleCircular<>();
         this.documentos = new ListaDobleCircular<>();
     }
+
 
     public static IndiceInvertido getInstance() {
         if (instance == null) {
@@ -286,6 +289,8 @@ public class IndiceInvertido {
     }
 
     public Vector obtenerVectorDocumento(String docId) {
+        System.out.println("DEBUG - Construyendo vector para: " + docId);
+
         int size = indice.tamano();
         Vector vector = new Vector(size);
 
@@ -294,24 +299,13 @@ public class IndiceInvertido {
 
         do {
             TerminoEntry terminoEntry = actual.getDato();
-
-            int tf = 0;
-            ListaDobleCircular<String> docsIds = terminoEntry.getDocumentosIds();
-            Nodo<String> nodoDocId = docsIds.getRoot();
-
-            if (nodoDocId != null) {
-                do {
-                    if (nodoDocId.getDato().equals(docId)) {
-                        tf++;
-                    }
-                    nodoDocId = nodoDocId.getSiguiente();
-                } while (nodoDocId != docsIds.getRoot());
-            }
-
+            int tf = terminoEntry.getFrecuenciaEnDocumento(docId);
             double idf = calcularIDF(terminoEntry.getTermino());
-            double valor = tf * idf;
 
-            vector.insertar(valor);
+            System.out.println("DEBUG - " + terminoEntry.getTermino() +
+                    ": TF=" + tf + ", IDF=" + idf);
+
+            vector.insertar(tf * idf);
 
             actual = actual.getSiguiente();
         } while (actual != indice.getRoot());
@@ -319,14 +313,15 @@ public class IndiceInvertido {
         return vector;
     }
 
-    public void actualizarIndice(ListaDobleCircular<Documento> nuevosDocs) {
+    public void actualizarIndice(Arreglos.ListaDobleCircular<Arreglos.Documento> nuevosDocs) {
         if (nuevosDocs == null || nuevosDocs.vacia()) return;
 
-        Nodo<Documento> actual = nuevosDocs.getRoot();
+        Arreglos.Nodo<Arreglos.Documento> actual = nuevosDocs.getRoot();
         do {
-            procesarDocumento(actual.getDato());
+            procesarDocumento(actual.getDato()); // usa tu método privado existente
             actual = actual.getSiguiente();
         } while (actual != nuevosDocs.getRoot());
     }
+
 
 }

@@ -2,10 +2,11 @@ package Arreglos;
 
 import Indice.TerminoEntry;
 
+import java.io.Serializable;
 import java.util.Comparator;
 import java.util.Iterator;
 
-public class ListaDobleCircular<T> implements Iterable<T> {
+public class ListaDobleCircular<T> implements Serializable, Iterable<T> {
     private Nodo<T> root;
 
     // Constructor
