@@ -6,7 +6,7 @@ import java.io.File;
 
 public class Archivos {
     // Clase responsable de cargar archivos
-    private Documento cargarDocumento(java.io.File archivo) {
+    public Documento cargarDocumentos(java.io.File archivo) {
         // try-with-resources para cerrar el reader automáticamente, esto es incluso si ocurre alguna excepción
         //BufferedReader es el recurso en este caso, esta es una clase que permite leer texto linea por linea de una forma eficiente
         try (java.io.BufferedReader reader = new java.io.BufferedReader(
@@ -32,7 +32,7 @@ public class Archivos {
         }
     }
 
-    public ListaDobleCircular<Documento> cargarDesdeCarpeta(String rutaCarpeta) {
+    /*public ListaDobleCircular<Documento> cargarDesdeCarpeta(String rutaCarpeta) {
         ListaDobleCircular<Documento> documentos = new ListaDobleCircular<>();
 
         File carpeta = new File(rutaCarpeta);
@@ -47,7 +47,7 @@ public class Archivos {
         }
         for (File archivo : archivos) {
             if (archivo.isFile() && archivo.getName().endsWith(".txt")) {
-                Documento doc = cargarDocumento(archivo);
+                Documento doc = cargarDocumentos(archivo);
                 if (doc != null) {
                     documentos.insertar(doc);
                 } else {
@@ -56,5 +56,5 @@ public class Archivos {
             }
         }
         return documentos;
-    }
+    }*/
 }

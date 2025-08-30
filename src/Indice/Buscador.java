@@ -17,6 +17,7 @@ public class Buscador {
     }
 
     public void setEstrategia(EstrategiaSimilitud estrategia) {
+
         this.estrategia = estrategia;
     }
 
