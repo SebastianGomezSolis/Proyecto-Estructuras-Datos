@@ -35,7 +35,7 @@ public class principal {
             try {
                 opcion = Integer.parseInt(sc.nextLine());
             } catch (NumberFormatException e) {
-                System.out.println("❌ Opción inválida. Intente de nuevo.");
+                System.out.println("Opción inválida. Intente de nuevo.");
                 continue;
             }
 
@@ -45,10 +45,10 @@ public class principal {
                     String ruta = sc.nextLine();
                     ListaDobleCircular<Documento> docs = gestorArchivos.cargarDesdeCarpeta(ruta);
                     if (docs.vacia()) {
-                        System.out.println("⚠️ No se encontraron documentos válidos en la carpeta.");
+                        System.out.println("No se encontraron documentos válidos en la carpeta.");
                     } else {
                         indice.construirIndice(docs);
-                        System.out.println("✅ Índice construido con " + docs.tamano() + " documentos.");
+                        System.out.println(" Índice construido con " + docs.tamano() + " documentos.");
                     }
                 }
 
@@ -57,10 +57,10 @@ public class principal {
                     String ruta = sc.nextLine();
                     ListaDobleCircular<Documento> nuevos = gestorArchivos.cargarDesdeCarpeta(ruta);
                     if (nuevos.vacia()) {
-                        System.out.println("⚠️ No se encontraron nuevos documentos.");
+                        System.out.println("No se encontraron nuevos documentos.");
                     } else {
                         indice.actualizarIndice(nuevos);
-                        System.out.println("✅ Índice actualizado con " + nuevos.tamano() + " documentos nuevos.");
+                        System.out.println(" Índice actualizado con " + nuevos.tamano() + " documentos nuevos.");
                     }
                 }
 
@@ -68,13 +68,13 @@ public class principal {
                     System.out.print("Ingrese su consulta de búsqueda: ");
                     String consulta = sc.nextLine();
                     if (consulta.trim().isEmpty()) {
-                        System.out.println("⚠️ La consulta no puede estar vacía.");
+                        System.out.println("La consulta no puede estar vacía.");
                     } else {
                         ListaDobleCircular<Documento> resultados = buscador.buscar(consulta);
                         if (resultados.vacia()) {
-                            System.out.println("⚠️ No se encontraron resultados para: '" + consulta + "'");
+                            System.out.println("No se encontraron resultados para: '" + consulta + "'");
                         } else {
-                            System.out.println("\n🔎 Resultados encontrados (ordenados por relevancia):");
+                            System.out.println("\nResultados encontrados (ordenados por relevancia):");
                             Nodo<Documento> actual = resultados.getRoot();
                             int contador = 1;
                             do {
@@ -98,12 +98,12 @@ public class principal {
                         double percentil = Double.parseDouble(sc.nextLine());
                         if (percentil > 0 && percentil < 100) {
                             indice.aplicarLeyDeZipf(percentil);
-                            System.out.println("✅ Ley de Zipf aplicada con percentil: " + percentil + "%");
+                            System.out.println("Ley de Zipf aplicada con percentil: " + percentil + "%");
                         } else {
-                            System.out.println("❌ El percentil debe estar entre 0 y 100.");
+                            System.out.println("El percentil debe estar entre 0 y 100.");
                         }
                     } catch (NumberFormatException e) {
-                        System.out.println("❌ Valor inválido. Debe ingresar un número.");
+                        System.out.println("Valor inválido. Debe ingresar un número.");
                     }
                 }
 
@@ -117,23 +117,23 @@ public class principal {
                         int opcionEstrategia = Integer.parseInt(sc.nextLine());
                         if (opcionEstrategia == 1) {
                             buscador.setEstrategia(new SimilitudCoseno());
-                            System.out.println("✅ Estrategia cambiada a: Similitud Coseno");
+                            System.out.println("Estrategia cambiada a: Similitud Coseno");
                         } else if (opcionEstrategia == 2) {
                             buscador.setEstrategia(new SimilitudProductoPunto());
-                            System.out.println("✅ Estrategia cambiada a: Producto Punto");
+                            System.out.println(" Estrategia cambiada a: Producto Punto");
                         } else {
-                            System.out.println("❌ Opción no válida.");
+                            System.out.println(" Opción no válida.");
                         }
                     } catch (NumberFormatException e) {
-                        System.out.println("❌ Opción inválida.");
+                        System.out.println("Opción inválida.");
                     }
                 }
 
                 case 7 -> {
                     if (serializar.guardarObjeto("indice.dat", indice)) {
-                        System.out.println("💾 Índice guardado correctamente en 'indice.dat'");
+                        System.out.println(" Índice guardado correctamente en 'indice.dat'");
                     } else {
-                        System.out.println("❌ Error al guardar el índice.");
+                        System.out.println(" Error al guardar el índice.");
                     }
                 }
 
@@ -142,18 +142,18 @@ public class principal {
                     if (objetoCargado instanceof IndiceInvertido) {
                         indice = (IndiceInvertido) objetoCargado;
                         buscador = new Buscador(indice);
-                        System.out.println("📂 Índice cargado correctamente desde 'indice.dat'");
+                        System.out.println(" Índice cargado correctamente desde 'indice.dat'");
                     } else {
-                        System.out.println("❌ No se pudo cargar el índice o el archivo no existe.");
+                        System.out.println(" No se pudo cargar el índice o el archivo no existe.");
                     }
                 }
 
                 case 0 -> {
-                    System.out.println("👋 Gracias por usar el sistema. ¡Hasta pronto!");
+                    System.out.println("Gracias por usar el sistema. ¡Hasta pronto!");
                     return;
                 }
 
-                default -> System.out.println("❌ Opción inválida. Intente de nuevo.");
+                default -> System.out.println(" Opción inválida. Intente de nuevo.");
             }
         }
     }
