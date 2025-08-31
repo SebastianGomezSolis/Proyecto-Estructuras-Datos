@@ -33,17 +33,18 @@ public class Buscador {
             actual = actual.getSiguiente();
         }
         // Ordenamiento burbuja
-        for (int i = 0; i < totalTerminos -1; i++) {
-            for (int j = 0; j < totalTerminos - i -1; j++) {
-                if (arreglo[j].getTermino().compareTo(arreglo[j+1].getTermino()) > 0) { // compareTo: comparar objetos entre si para poder ordenarlos
+        for (int i = 0; i < totalTerminos - 1; i++) {
+            for (int j = 0; j < totalTerminos - i - 1; j++) {
+                if (arreglo[j].getTermino().compareTo(arreglo[j + 1].getTermino()) > 0) { // compareTo: comparar objetos entre si para poder ordenarlos
                     TerminoEntry aux = arreglo[j];
-                    arreglo[j] = arreglo[j+1];
-                    arreglo[j+1] = aux;
+                    arreglo[j] = arreglo[j + 1];
+                    arreglo[j + 1] = aux;
                 }
             }
         }
         return arreglo;
     }
+
     //busqueda binaria
     public int busquedaBinaria(TerminoEntry[] arreglo, String terminoBuscado) {
         int inicio = 0;
@@ -67,15 +68,15 @@ public class Buscador {
         int size = ordenados.length;
         Vector vector = new Vector(size);
 
-        System.out.println("DEBUG - Términos en consulta: " + Arrays.toString(texto));
-        System.out.println("DEBUG - Términos en índice: " + ordenados.length);
+        //System.out.println("DEBUG - Términos en consulta: " + Arrays.toString(texto));
+        //System.out.println("DEBUG - Términos en índice: " + ordenados.length);
 
         for (int i = 0; i < size; i++) {
             String termino = ordenados[i].getTermino();
             int tf = frecuencia(texto, termino);
             double idf = indice.calcularIDF(termino);
 
-            System.out.println("DEBUG - " + termino + ": TF=" + tf + ", IDF=" + idf);
+            //System.out.println("DEBUG - " + termino + ": TF=" + tf + ", IDF=" + idf);
 
             vector.insertar(tf * idf);
         }
@@ -96,29 +97,42 @@ public class Buscador {
         int n = documentos.tamano();
         if (n <= 1) return;
 
+        Documento[] docs = new Documento[n];
+        Double[] sims = new Double[n];
+
+        Nodo<Documento> nodoDoc = documentos.getRoot();
+        Nodo<Double> nodoSim = similitudes.getRoot();
+
+        for (int i = 0; i < n; i++) {
+            docs[i] = nodoDoc.getDato();
+            sims[i] = nodoSim.getDato();
+            nodoDoc = nodoDoc.getSiguiente();
+            nodoSim = nodoSim.getSiguiente();
+        }
+
+        // Selection sort descendente por similitud
         for (int i = 0; i < n - 1; i++) {
-            Nodo<Documento> nodoDocumento = documentos.getRoot();
-            Nodo<Double> nodoSimilitud = similitudes.getRoot();
-
-            for (int j = 0; j < n - i - 1; j++) {
-                Nodo<Documento> sigDoc = nodoDocumento.getSiguiente();
-                Nodo<Double> sigSim = nodoSimilitud.getSiguiente();
-
-                if (nodoSimilitud.getDato() < sigSim.getDato()) {
-                    // Intercambiar documentos
-                    Documento tempDoc = nodoDocumento.getDato();
-                    nodoDocumento.setDato(sigDoc.getDato());
-                    sigDoc.setDato(tempDoc);
-
-                    // Intercambiar similitudes
-                    Double tempSim = nodoSimilitud.getDato();
-                    nodoSimilitud.setDato(sigSim.getDato());
-                    sigSim.setDato(tempSim);
+            int maxIdx = i;
+            for (int j = i + 1; j < n; j++) {
+                if (sims[j] > sims[maxIdx]) {
+                    maxIdx = j;
                 }
-
-                nodoDocumento = nodoDocumento.getSiguiente();
-                nodoSimilitud = nodoSimilitud.getSiguiente();
             }
+            // Intercambiar similitud
+            double tempSim = sims[i];
+            sims[i] = sims[maxIdx];
+            sims[maxIdx] = tempSim;
+
+            // Intercambiar documento
+            Documento tempDoc = docs[i];
+            docs[i] = docs[maxIdx];
+            docs[maxIdx] = tempDoc;
+        }
+
+        // Reconstruir lista de documentos ordenada
+        documentos.setRoot(null);
+        for (int i = 0; i < n; i++) {
+            documentos.insertar(docs[i]);
         }
     }
 
@@ -142,7 +156,7 @@ public class Buscador {
             if (vectorDoc != null) {
                 double sim = estrategia.calcular(vectorConsulta, vectorDoc);
                 if (sim > 0) {
-                    doc.setRelevancia(sim); // ← ¡ESTA LÍNEA FALTA!
+                    doc.setRelevancia(sim);
                     resultados.insertar(doc);
                     similitudes.insertar(sim);
                 }

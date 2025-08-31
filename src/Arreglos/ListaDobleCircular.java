@@ -18,6 +18,10 @@ public class ListaDobleCircular<T> implements Serializable, Iterable<T> {
         return root;
     }
 
+    public void setRoot(Nodo<T> root) {
+        this.root = root;
+    }
+
     // Metodo para ver si esta vacia
     public boolean vacia() {
         return this.root == null;

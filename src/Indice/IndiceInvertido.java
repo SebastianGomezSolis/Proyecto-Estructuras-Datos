@@ -289,7 +289,7 @@ public class IndiceInvertido implements Serializable {
     }
 
     public Vector obtenerVectorDocumento(String docId) {
-        System.out.println("DEBUG - Construyendo vector para: " + docId);
+        //System.out.println("DEBUG - Construyendo vector para: " + docId);
 
         int size = indice.tamano();
         Vector vector = new Vector(size);
@@ -302,8 +302,8 @@ public class IndiceInvertido implements Serializable {
             int tf = terminoEntry.getFrecuenciaEnDocumento(docId);
             double idf = calcularIDF(terminoEntry.getTermino());
 
-            System.out.println("DEBUG - " + terminoEntry.getTermino() +
-                    ": TF=" + tf + ", IDF=" + idf);
+            //System.out.println("DEBUG - " + terminoEntry.getTermino() +
+                  // ": TF=" + tf + ", IDF=" + idf);
 
             vector.insertar(tf * idf);
 

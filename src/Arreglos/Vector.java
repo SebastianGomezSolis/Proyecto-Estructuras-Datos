@@ -64,7 +64,7 @@ public class Vector implements Serializable {
             producto += this.vector[i] * otro.vector[i];
         }
 
-        System.out.println("DEBUG - Producto punto: " + producto);
+       // System.out.println("DEBUG - Producto punto: " + producto);
         return producto;
     }
 
@@ -76,19 +76,19 @@ public class Vector implements Serializable {
         }
 
         double magnitud = Math.sqrt(suma);
-        System.out.println("DEBUG - Magnitud calculada: " + magnitud);
+        //System.out.println("DEBUG - Magnitud calculada: " + magnitud);
         return magnitud;
     }
 
     // Similitud del coseno entre dos vectores
     public double cosineSimilarity(Vector otro) {
-        System.out.println("DEBUG - Vector this: " + this.mostrar());
-        System.out.println("DEBUG - Vector otro: " + otro.mostrar());
+       // System.out.println("DEBUG - Vector this: " + this.mostrar());
+       // System.out.println("DEBUG - Vector otro: " + otro.mostrar());
 
         double numerator = this.productoPunto(otro);
         double denominator = this.magnitude() * otro.magnitude();
 
-        System.out.println("DEBUG - Similitud: " + numerator + " / " + denominator);
+      //  System.out.println("DEBUG - Similitud: " + numerator + " / " + denominator);
 
         if (denominator == 0) {
             return 0.0;

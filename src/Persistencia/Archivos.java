@@ -25,7 +25,7 @@ public class Archivos {
             return new Documento(id, contenido.toString(), archivo.getAbsolutePath());
 
         } catch (Exception e) {
-            System.err.println("⚠️ Error leyendo archivo: " + archivo.getName());
+            System.err.println(" Error leyendo archivo: " + archivo.getName());
             return null;
         }
     }
@@ -36,14 +36,14 @@ public class Archivos {
         File carpeta = new File(rutaCarpeta);
 
         if (!carpeta.exists() || !carpeta.isDirectory()) {
-            System.out.println("❌ Carpeta inválida: " + rutaCarpeta);
+            System.out.println(" Carpeta inválida: " + rutaCarpeta);
             return documentos;
         }
 
         File[] archivos = carpeta.listFiles((dir, name) -> name.toLowerCase().endsWith(".txt"));
 
         if (archivos == null || archivos.length == 0) {
-            System.out.println("⚠️ No se encontraron archivos en la carpeta.");
+            System.out.println(" No se encontraron archivos en la carpeta.");
             return documentos;
         }
 
@@ -52,7 +52,7 @@ public class Archivos {
             if (doc != null) {
                 documentos.insertar(doc);
             } else {
-                System.out.println("⚠️ No se pudo leer: " + archivo.getName());
+                System.out.println("No se pudo leer: " + archivo.getName());
             }
         }
         return documentos;
