@@ -145,21 +145,36 @@ public class IndiceInvertido implements Serializable {
     }
 
 
-    // Método que construye el índice invertido a partir de una lista de documentos
     public void construirIndice(ListaDobleCircular<Documento> listaDocumentos) {
-        // Si la lista está vacía o es null, no hacemos nada
         if (listaDocumentos == null || listaDocumentos.vacia()) return;
 
-        Nodo<Documento> docNode = documentos.getRoot();
-        if (docNode != null) { // ⚠️ Verificación importante
+        // PASO 1: Procesar todos los documentos para llenar el índice
+        Nodo<Documento> docNode = listaDocumentos.getRoot();
+        int docsProcessed = 0;
+
+        do {
+            Documento doc = docNode.getDato();
+            procesarDocumento(doc);
+            docsProcessed++;
+            docNode = docNode.getSiguiente();
+        } while (docNode != listaDocumentos.getRoot());
+
+        aplicarLeyDeZipf(10.0); // Solo mantener el 10% de términos más frecuentes
+
+        Nodo<Documento> docNodeInterno = documentos.getRoot();
+        if (docNodeInterno != null) {
+            int vectorsCreated = 0;
             do {
-                Documento doc = docNode.getDato();
+                Documento doc = docNodeInterno.getDato();
                 Vector vec = obtenerVectorDocumento(doc.getId());
                 doc.setVectorTFIDF(vec);
-                docNode = docNode.getSiguiente();
-            } while (docNode != documentos.getRoot());
-        }
+                vectorsCreated++;
 
+
+                docNodeInterno = docNodeInterno.getSiguiente();
+            } while (docNodeInterno != documentos.getRoot());
+
+        }
     }
 
 

@@ -94,39 +94,90 @@ public class Buscador {
     }
 
     public ListaDobleCircular<Documento> buscar(String consulta) {
-        //limpiar
+        System.out.println("=== DEBUG BÚSQUEDA ===");
+        System.out.println("DEBUG - Consulta original: '" + consulta + "'");
+
+        // 1. Limpiar la consulta
         String[] terminosConsulta = procesar.textLimpio(consulta, indice.getStopwords());
-        //ordenamos
+
+        // Mostrar términos sin usar Arrays.toString()
+        System.out.print("DEBUG - Términos después de limpieza: [");
+        for (int i = 0; i < terminosConsulta.length; i++) {
+            System.out.print("'" + terminosConsulta[i] + "'");
+            if (i < terminosConsulta.length - 1) {
+                System.out.print(", ");
+            }
+        }
+        System.out.println("]");
+
+        if (terminosConsulta.length == 0) {
+            System.out.println("DEBUG - No quedaron términos después de filtrar stopwords");
+            return new ListaDobleCircular<>();
+        }
+
+        // 2. Verificar que el índice tenga datos
+        System.out.println("DEBUG - Términos en índice: " + indice.getIndice().tamano());
+        System.out.println("DEBUG - Documentos en índice: " + indice.getDocumentos().tamano());
+
+        // 3. Ordenar términos del índice
         TerminoEntry[] ordenados = ordenar();
-        // TF-IDF
+        System.out.println("DEBUG - Términos ordenados: " + ordenados.length);
+
+        // Mostrar algunos términos del índice para verificar
+        System.out.println("DEBUG - Primeros términos en índice ordenado:");
+        for (int i = 0; i < Math.min(5, ordenados.length); i++) {
+            System.out.println("  " + ordenados[i].getTermino() + " (" + ordenados[i].getVeces() + " veces)");
+        }
+
+        // 4. Crear vector de consulta
         Vector vectorConsulta = vecConsulta(terminosConsulta, ordenados);
-        // similitud coseno
+        System.out.println("DEBUG - Vector consulta creado");
+
+        // 5. Calcular similitudes
         ListaDobleCircular<Documento> documentos = indice.getDocumentos();
         ListaDobleCircular<Documento> resultados = new ListaDobleCircular<>();
-        ListaDobleCircular<Double> similitudes = new ListaDobleCircular<>();
 
         Nodo<Documento> actualDocumento = documentos.getRoot();
-        if (actualDocumento == null) return resultados;
+        if (actualDocumento == null) {
+            System.out.println("DEBUG - No hay documentos para procesar");
+            return resultados;
+        }
+
+        int docsProcessed = 0;
         do {
             Documento doc = actualDocumento.getDato();
             Vector vectorDoc = doc.getVectorTFIDF();
+
+            System.out.println("DEBUG - Procesando documento: " + doc.getId());
+
             if (vectorDoc != null) {
+                System.out.println("DEBUG - Vector documento existe");
                 double sim = estrategia.calcular(vectorConsulta, vectorDoc);
+                System.out.println("DEBUG - Similitud calculada: " + sim);
+
                 if (sim > 0) {
                     doc.setRelevancia(sim);
                     resultados.insertar(doc);
-                    similitudes.insertar(sim);
+                    System.out.println("DEBUG - Documento agregado a resultados con relevancia: " + sim);
                 }
+            } else {
+                System.out.println("DEBUG - Vector TF-IDF del documento es null");
             }
 
             actualDocumento = actualDocumento.getSiguiente();
+            docsProcessed++;
         } while (actualDocumento != documentos.getRoot());
 
-        // Ordenamos los resultados por relevancia (usando MergeSort de ListaDobleCircular)
-        resultados.ordenarPorRelevancia();
+        System.out.println("DEBUG - Documentos procesados: " + docsProcessed);
+        System.out.println("DEBUG - Resultados encontrados: " + resultados.tamano());
 
+        // 6. Ordenar resultados por relevancia
+        if (!resultados.vacia()) {
+            resultados.ordenarPorRelevancia();
+        }
+
+        System.out.println("=== FIN DEBUG BÚSQUEDA ===");
         return resultados;
     }
 
 }
-
