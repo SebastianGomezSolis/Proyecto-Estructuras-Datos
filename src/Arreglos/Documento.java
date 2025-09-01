@@ -33,5 +33,16 @@ public class  Documento implements Serializable {
         this.relevancia = relevancia;
     }
 
+    private Vector vectorTFIDF;
+
+    public void setVectorTFIDF(Vector v) {
+        this.vectorTFIDF = v;
+    }
+
+    public Vector getVectorTFIDF() {
+        return vectorTFIDF;
+    }
+
+
 }
 

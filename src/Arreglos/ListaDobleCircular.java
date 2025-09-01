@@ -189,4 +189,62 @@ public class ListaDobleCircular<T> implements Serializable, Iterable<T> {
         return new IteratorListaDobleCircular<>(this);
     }
 
+    // MergeSort para ordenar la lista circular doblemente enlazada
+    public void ordenarPorRelevancia() {
+        if (root == null || root.getSiguiente() == root) return;
+        root.setAnterior(null); // romper circularidad temporal
+        root = mergeSort(root);
+        // volver a conectar en circular
+        Nodo<T> ultimo = root;
+        while (ultimo.getSiguiente() != null) {
+            ultimo = ultimo.getSiguiente();
+        }
+        root.setAnterior(ultimo);
+        ultimo.setSiguiente(root);
+    }
+
+    private Nodo<T> mergeSort(Nodo<T> head) {
+        if (head == null || head.getSiguiente() == null) return head;
+
+        Nodo<T> medio = getMedio(head);
+        Nodo<T> siguienteMedio = medio.getSiguiente();
+        medio.setSiguiente(null);
+
+        Nodo<T> izquierda = mergeSort(head);
+        Nodo<T> derecha = mergeSort(siguienteMedio);
+
+        return merge(izquierda, derecha);
+    }
+
+    private Nodo<T> merge(Nodo<T> izquierda, Nodo<T> derecha) {
+        if (izquierda == null) return derecha;
+        if (derecha == null) return izquierda;
+
+        Documento dIzq = (Documento) izquierda.getDato();
+        Documento dDer = (Documento) derecha.getDato();
+
+        if (dIzq.getRelevancia() >= dDer.getRelevancia()) {
+            izquierda.setSiguiente(merge(izquierda.getSiguiente(), derecha));
+            izquierda.getSiguiente().setAnterior(izquierda);
+            izquierda.setAnterior(null);
+            return izquierda;
+        } else {
+            derecha.setSiguiente(merge(izquierda, derecha.getSiguiente()));
+            derecha.getSiguiente().setAnterior(derecha);
+            derecha.setAnterior(null);
+            return derecha;
+        }
+    }
+
+    private Nodo<T> getMedio(Nodo<T> head) {
+        if (head == null) return head;
+        Nodo<T> lento = head;
+        Nodo<T> rapido = head;
+        while (rapido.getSiguiente() != null && rapido.getSiguiente().getSiguiente() != null) {
+            lento = lento.getSiguiente();
+            rapido = rapido.getSiguiente().getSiguiente();
+        }
+        return lento;
+    }
+
 }

@@ -97,14 +97,13 @@ public class Vector implements Serializable {
     }
 
     public String mostrar() {
-        String cadena = "[";
+        StringBuilder sb = new StringBuilder("[");
         for (int i = 0; i < size; i++) {
-            cadena += vector[i];
-            if (i < size - 1) {
-                cadena += ", ";
-            }
+            sb.append(vector[i]);
+            if (i < size - 1) sb.append(", ");
         }
-        cadena += "]";
-        return cadena;
+        sb.append("]");
+        return sb.toString();
     }
+
 }

@@ -22,6 +22,8 @@ public class IndiceInvertido implements Serializable {
             "algunos", "muchos", "mucho", "poco", "más", "menos", "ante", "bajo", "como", "sin"
     };
 
+
+
     private IndiceInvertido() {
         this.indice = new ListaDobleCircular<>();
         this.documentos = new ListaDobleCircular<>();
@@ -42,24 +44,15 @@ public class IndiceInvertido implements Serializable {
             documentos.insertar(doc);
         }
 
-        // Dividimos el texto del documento en palabras
-        //split("\\W+") lo que hace es dividir el texto en partes usando cualquier carácter que no sea letra o número como separador
+        ProcesarTexto procesador = new ProcesarTexto();
         String[] palabrasDelDoc = doc.getContenido().split("\\W+");
 
-        // Recorremos cada palabra obtenida
         for (String palabra : palabrasDelDoc) {
-            // Convertimos a minúsculas y eliminamos espacios al inicio y final
-            //toLowerCase sirve para convertir las letras de min a mayus y se consideren igual
-            //trim elimina los espacios al inicio y final de la palabra, por lo que ayuda a evitar espacios en blanco
-            palabra = palabra.toLowerCase().trim();
-
-            // Solo agregamos la palabra si no es una stopword y no está vacía
-            if (!esStopword(palabra) && palabra.length() > 0) {
-                // La agregamos al índice invertido junto con el documento al que pertenece
-                meterTermino(palabra, doc);
+            String normalizada = procesador.normalizar(palabra);
+            if (!esStopword(normalizada) && normalizada.length() > 0) {
+                meterTermino(normalizada, doc);
             }
         }
-
     }
 
     // Verifica si un documento ya fue agregado al índice usando su ID
@@ -157,18 +150,16 @@ public class IndiceInvertido implements Serializable {
         // Si la lista está vacía o es null, no hacemos nada
         if (listaDocumentos == null || listaDocumentos.vacia()) return;
 
-        // Empezamos desde el primer nodo de la lista
-        Nodo<Documento> actual = listaDocumentos.getRoot();
+        Nodo<Documento> docNode = documentos.getRoot();
+        if (docNode != null) { // ⚠️ Verificación importante
+            do {
+                Documento doc = docNode.getDato();
+                Vector vec = obtenerVectorDocumento(doc.getId());
+                doc.setVectorTFIDF(vec);
+                docNode = docNode.getSiguiente();
+            } while (docNode != documentos.getRoot());
+        }
 
-        // Recorremos toda la lista circular
-        do {
-            // Procesamos el documento actual para agregar sus palabras al índice
-            procesarDocumento(actual.getDato());
-
-            // Pasamos al siguiente nodo
-            actual = actual.getSiguiente();
-            // Continuamos hasta volver al nodo inicial (lista circular)
-        } while (actual != listaDocumentos.getRoot());
     }
 
 
@@ -182,15 +173,6 @@ public class IndiceInvertido implements Serializable {
 
         // Si no encontramos el término, devolvemos una lista vacía
         return new ListaDobleCircular<>();
-    }
-
-    // Método para limpiar todo el índice y la lista de documentos
-    public void limpiarIndice() {
-        // Reiniciamos la lista de términos
-        indice = new ListaDobleCircular<>();
-
-        // Reiniciamos la lista de documentos
-        documentos = new ListaDobleCircular<>();
     }
 
     // Método que genera un resumen de estadísticas del índice invertido
