@@ -13,7 +13,7 @@ public class principal {
         Buscador buscador = new Buscador(indice);
         Serializar serializar = new Serializar();
         Archivos gestorArchivos = new Archivos();
-
+        System.out.println("\t\t\tDIOS AYUDA");
         System.out.println("\t\t\t¡Bienvenido al Sistema de Búsqueda!");
         System.out.println("\tEste sistema te permitirá buscar términos dentro de documentos");
 
