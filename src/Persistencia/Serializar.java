@@ -1,26 +1,25 @@
+// ==========================
+// Package: Persistencia
+// ==========================
 package Persistencia;
+
 import java.io.*;
 
 public class Serializar {
-
-    public boolean guardarObjeto(String rutaArchivo, Object objeto) {
-        try (ObjectOutputStream os = new ObjectOutputStream(new FileOutputStream(rutaArchivo))) {
+    public boolean guardarObjeto(String ruta, Object objeto) {
+        try (ObjectOutputStream os = new ObjectOutputStream(new FileOutputStream(ruta))) {
             os.writeObject(objeto);
             return true;
         } catch (IOException e) {
-            System.err.println("Error guardando archivo: " + e.getMessage());
             return false;
         }
     }
 
-    public Object cargarObjeto(String rutaArchivo) {
-        try (ObjectInputStream is = new ObjectInputStream(new FileInputStream(rutaArchivo))) {
+    public Object cargarObjeto(String ruta) {
+        try (ObjectInputStream is = new ObjectInputStream(new FileInputStream(ruta))) {
             return is.readObject();
         } catch (IOException | ClassNotFoundException e) {
-            System.err.println("Error leyendo archivo: " + e.getMessage());
             return null;
         }
     }
-
-
 }

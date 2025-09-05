@@ -7,93 +7,68 @@ public class Vector implements Serializable {
     private int tam;
     private int size;
 
+    // Constructor para inicializar con arreglo ya existente
+    public Vector(double[] valores) {
+        this.vector = valores;
+        this.size = valores.length;
+    }
+
+    // Constructor para inicializar con capacidad fija
     public Vector(int tam) {
         this.vector = new double[tam];
-        this.tam = tam;
         this.size = 0;
     }
 
-    public void insertar(double dato){
-        if (size == tam) {
-            tam = tam * 2;
-            double[] nuevoVector = new double[tam];
-            for (int i = 0; i < size; i++) {
-                nuevoVector[i] = vector[i];
-            }
-            vector = nuevoVector;
+    // Insertar un valor al final
+    public void insertar(double dato) {
+        if (size == vector.length) {
+            double[] nuevo = new double[size * 2 + 1]; // +1 por seguridad si size=0
+            System.arraycopy(vector, 0, nuevo, 0, size);
+            vector = nuevo;
         }
-        vector[size] = dato;
-        size++;
+        vector[size++] = dato;
     }
 
-    public void eliminar(double valor) {
-        for (int i = 0; i < size; i++) {
-            if (vector[i] == valor) {
-                for (int j = i; j < size - 1; j++) {
-                    vector[j] = vector[j + 1];
-                }
-                size--;
-            }
-        }
-    }
-
-    public boolean buscar(double valor) {
-        for (int i = 0; i < size; i++) {
-            if (vector[i] == valor) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public int getSize() {
-        return size;
-    }
-
-    public int getTam() {
-        return tam;
-    }
-
+    // Producto punto
     public double productoPunto(Vector otro) {
         if (this.size != otro.size) {
-            throw new IllegalArgumentException("Los vectores tienen tamaños diferentes");
+            throw new IllegalArgumentException("Vectores de distinto tamaño");
         }
-
         double producto = 0;
         for (int i = 0; i < size; i++) {
             producto += this.vector[i] * otro.vector[i];
         }
-
-       // System.out.println("DEBUG - Producto punto: " + producto);
         return producto;
     }
 
-    // Magnitud del vector (norma Euclidiana)
+    // Magnitud del vector
     public double magnitude() {
         double suma = 0;
         for (int i = 0; i < size; i++) {
             suma += vector[i] * vector[i];
         }
-
-        double magnitud = Math.sqrt(suma);
-        //System.out.println("DEBUG - Magnitud calculada: " + magnitud);
-        return magnitud;
+        return Math.sqrt(suma);
     }
 
-    // Similitud del coseno entre dos vectores
+    // Similitud coseno
     public double cosineSimilarity(Vector otro) {
-       // System.out.println("DEBUG - Vector this: " + this.mostrar());
-       // System.out.println("DEBUG - Vector otro: " + otro.mostrar());
+        double numerador = this.productoPunto(otro);
+        double denominador = this.magnitude() * otro.magnitude();
+        if (denominador == 0) return 0.0;
+        return numerador / denominador;
+    }
 
-        double numerator = this.productoPunto(otro);
-        double denominator = this.magnitude() * otro.magnitude();
+    // Getters útiles
+    public int getSize() {
+        return size;
+    }
 
-      //  System.out.println("DEBUG - Similitud: " + numerator + " / " + denominator);
+    public double get(int i) {
+        return vector[i];
+    }
 
-        if (denominator == 0) {
-            return 0.0;
-        }
-        return numerator / denominator;
+    public double[] getArray() {
+        return vector;
     }
 
     public String mostrar() {

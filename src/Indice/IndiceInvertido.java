@@ -1,324 +1,137 @@
 package Indice;
 
-import Arreglos.Documento;
 import Arreglos.ListaDobleCircular;
-import Arreglos.Nodo;
+import Arreglos.Documento;
 import Arreglos.Vector;
+import Utilidades.Ordenador;
 
-import java.io.Serializable;
+import java.io.*;
 
 public class IndiceInvertido implements Serializable {
-    private static IndiceInvertido instance;
+    private static final long serialVersionUID = 1L;
 
+    // === Singleton ===
+    private static IndiceInvertido instancia;
+
+    public static IndiceInvertido getInstance() {
+        if (instancia == null) {
+            instancia = new IndiceInvertido();
+        }
+        return instancia;
+    }
+
+    // === Atributos ===
     private ListaDobleCircular<TerminoEntry> indice;
     private ListaDobleCircular<Documento> documentos;
 
-    //array básico con algunas stopwords
-    private String[] stopwords = {
-            "el", "la", "de", "que", "y", "a", "en", "un", "es", "se", "no", "te", "lo", "le",
-            "da", "su", "por", "son", "con", "para", "al", "del", "los", "las", "uno", "una",
-            "sobre", "todo", "también", "tras", "otro", "algún", "tanto", "muy", "ya", "pero",
-            "si", "o", "este", "esta", "hasta", "donde", "quien", "desde", "todos", "durante",
-            "algunos", "muchos", "mucho", "poco", "más", "menos", "ante", "bajo", "como", "sin"
-    };
-
-
-
+    // === Constructor privado (para Singleton) ===
     private IndiceInvertido() {
         this.indice = new ListaDobleCircular<>();
         this.documentos = new ListaDobleCircular<>();
     }
 
-
-    public static IndiceInvertido getInstance() {
-        if (instance == null) {
-            instance = new IndiceInvertido();
-        }
-        return instance;
-    }
-    // Procesa un documento y lo agrega a la lista de documentos (si no estaba)
-    // y mete cada palabra al índice, filtrando stopwords
-    private void procesarDocumento(Documento doc) {
-        //si el doc no esta registrado, se guarda
-        if (!yaEstaElDocumento(doc.getId())) {
+    // === Construcción del índice ===
+    public void construirIndice(ListaDobleCircular<Documento> docs) {
+        for (Documento doc : docs) {
             documentos.insertar(doc);
-        }
-
-        ProcesarTexto procesador = new ProcesarTexto();
-        String[] palabrasDelDoc = doc.getContenido().split("\\W+");
-
-        for (String palabra : palabrasDelDoc) {
-            String normalizada = procesador.normalizar(palabra);
-            if (!esStopword(normalizada) && normalizada.length() > 0) {
-                meterTermino(normalizada, doc);
+            String[] palabras = doc.getContenido().split("\\s+"); // aquí deberías limpiar con stopwords
+            for (String p : palabras) {
+                if (!p.isEmpty()) {
+                    meterTermino(p.toLowerCase(), doc);
+                }
             }
         }
     }
 
-    // Verifica si un documento ya fue agregado al índice usando su ID
-    private boolean yaEstaElDocumento(String id) {
-        // Si la lista de documentos está vacía, no esta
-        if (documentos.vacia()) return false;
-
-        // Empezamos desde el primer nodo de la lista de documentos
-        Nodo<Documento> actual = documentos.getRoot();
-
-        // Recorremos la lista circular
-        do {
-            // Si encontramos un documento con el mismo ID, devolvemos true
-            if (actual.getDato().getId().equals(id)) return true;
-
-            // Avanzamos al siguiente nodo
-            actual = actual.getSiguiente();
-        } while (actual != documentos.getRoot()); // Terminamos cuando volvemos al inicio
-
-        // Si recorrimos toda la lista y no lo encontramos, devolvemos false
-        return false;
-    }
-
-
-    // Agrega un término al índice invertido, vinculándolo con un documento específico
-    private void meterTermino(String termino, Documento doc) {
-
-        // Primero buscamos si el término ya está en el índice
-        TerminoEntry entrada = buscarEnIndice(termino);
-
-        if (entrada == null) {
-            // Si no existe, creamos una nueva entrada para este término
-            entrada = new TerminoEntry(termino);
-
-            // Asociamos este documento a la entrada del término
-            entrada.agregarDocumento(doc.getId());
-
-            // Insertamos la entrada en la lista de forma ordenada alfabéticamente
-            // Se compara ignorando mayúsculas/minúsculas
-            indice.insertarOrdenado((a, b) -> a.compararAlfabeticamente(b), entrada);
-
+    public void meterTermino(String termino, Documento doc) {
+        TerminoEntry existente = buscarTermino(termino);
+        if (existente == null) {
+            TerminoEntry nuevo = new TerminoEntry(termino);
+            nuevo.agregarOcurrencia(doc.getId());
+            indice.insertar(nuevo);
         } else {
-            // Si el término ya existe en el índice, simplemente agregamos el documento
-            // para que quede registrado que este documento contiene el término
-            entrada.agregarDocumento(doc.getId());
+            existente.agregarOcurrencia(doc.getId());
         }
     }
 
-
-    // Método que busca un término en el índice y devuelve su entrada si existe
-    private TerminoEntry buscarEnIndice(String termino) {
-        // Si la lista de términos está vacía, no hay nada que buscar
-        if (indice.vacia()) return null;
-
-        // Comenzamos desde el primer nodo de la lista
-        Nodo<TerminoEntry> actual = indice.getRoot();
-
-        // Recorremos toda la lista circular
-        do {
-            // Preguntamos al objeto TerminoEntry si coincide con el término que buscamos
-            if (actual.getDato().esIgual(termino)) {
-                // Si coincide, devolvemos la entrada completa
-                return actual.getDato();
-            }
-
-            // Avanzamos al siguiente nodo
-            actual = actual.getSiguiente();
-        } while (actual != indice.getRoot()); // Repetimos hasta volver al inicio
-
-        // Si llegamos al final y no encontramos nada, devolvemos null
+    public TerminoEntry buscarTermino(String termino) {
+        for (TerminoEntry t : indice) {
+            if (t.getTermino().equals(termino)) return t;
+        }
         return null;
     }
 
-
-    // Método que verifica si una palabra es una stopword
-    private boolean esStopword(String palabra) {
-        // Recorremos el array de stopwords usando un índice
-        for (int i = 0; i < stopwords.length; i++) {
-            // Obtenemos la stopword en la posición i
-            String palabraActual = stopwords[i];
-
-            // Comparamos con la palabra que queremos verificar
-            if (palabraActual.equals(palabra)) {
-                // Si encontramos coincidencia, devolvemos true
-                return true;
+    // === TF-IDF ===
+    public Vector obtenerVectorDocumento(String docId) {
+        double[] valores = new double[indice.tamano()];
+        int i = 0;
+        for (TerminoEntry t : indice) {
+            int tf = t.tfEnDocumento(docId);
+            if (tf > 0) {
+                double idf = Math.log((double) documentos.tamano() / (1 + t.cuantosDocumentos()));
+                valores[i] = tf * idf;
+            } else {
+                valores[i] = 0.0;
             }
+            i++;
         }
-        // Si recorremos todo el array y no hay coincidencia, devolvemos false
-        return false;
-    }
-
-
-    public void construirIndice(ListaDobleCircular<Documento> listaDocumentos) {
-        if (listaDocumentos == null || listaDocumentos.vacia()) return;
-
-        // PASO 1: Procesar todos los documentos para llenar el índice
-        Nodo<Documento> docNode = listaDocumentos.getRoot();
-        int docsProcessed = 0;
-
-        do {
-            Documento doc = docNode.getDato();
-            procesarDocumento(doc);
-            docsProcessed++;
-            docNode = docNode.getSiguiente();
-        } while (docNode != listaDocumentos.getRoot());
-
-        aplicarLeyDeZipf(10.0); // Solo mantener el 10% de términos más frecuentes
-
-        Nodo<Documento> docNodeInterno = documentos.getRoot();
-        if (docNodeInterno != null) {
-            int vectorsCreated = 0;
-            do {
-                Documento doc = docNodeInterno.getDato();
-                Vector vec = obtenerVectorDocumento(doc.getId());
-                doc.setVectorTFIDF(vec);
-                vectorsCreated++;
-
-
-                docNodeInterno = docNodeInterno.getSiguiente();
-            } while (docNodeInterno != documentos.getRoot());
-
-        }
-    }
-
-
-    // Método para buscar un término en el índice invertido
-    public ListaDobleCircular<String> buscar(String termino) {
-        // Primero buscamos el término en nuestro índice, pasándolo a minúsculas
-        TerminoEntry entrada = buscarEnIndice(termino.toLowerCase());
-
-        // Si encontramos la entrada, devolvemos la lista de IDs de documentos donde aparece
-        if (entrada != null) return entrada.getDocumentosIds();
-
-        // Si no encontramos el término, devolvemos una lista vacía
-        return new ListaDobleCircular<>();
-    }
-
-    // Método que genera un resumen de estadísticas del índice invertido
-    public String mostrarEstadisticas() {
-        // Contamos cuántos documentos tenemos en el índice
-        int totalDocs = documentos.tamano();
-
-        // Contamos cuántos términos únicos hay en el índice
-        int totalTerminos = indice.tamano();
-
-        // Inicializamos el contador de palabras totales (considerando repeticiones)
-        int totalPalabras = 0;
-
-        // Variables para llevar seguimiento del término más frecuente
-        int maxVeces = 0;
-        String terminoMax = "";
-
-        // Empezamos a recorrer la lista de términos desde la raíz
-        Nodo<TerminoEntry> actual = indice.getRoot();
-
-        // Si la lista no está vacía
-        if (actual != null) {
-            do {
-                // Sumamos cuántas veces aparece este término al total de palabras
-                totalPalabras += actual.getDato().getVeces();
-
-                // Verificamos si este término es más frecuente que el anterior máximo
-                if (actual.getDato().getVeces() > maxVeces) {
-                    maxVeces = actual.getDato().getVeces();          // Guardamos la frecuencia máxima
-                    terminoMax = actual.getDato().getTermino();      // Guardamos cuál es el término
-                }
-
-                // Pasamos al siguiente nodo en la lista
-                actual = actual.getSiguiente();
-            } while (actual != indice.getRoot()); // Repetimos hasta dar la vuelta completa
-        }
-
-        // Devolvemos un string que resume toda la información de manera legible
-        return "Documentos: " + totalDocs +
-                ", Términos: " + totalTerminos +
-                ", Palabras totales indexadas: " + totalPalabras +
-                ", Término más frecuente: '" + terminoMax + "' (" + maxVeces + " veces)";
-    }
-
-
-
-    public ListaDobleCircular<TerminoEntry> getIndice() {
-        return indice;
-    }
-
-    public ListaDobleCircular<Documento> getDocumentos() {
-        return documentos;
-    }
-
-    public String[] getStopwords() {return stopwords; }
-
-    public void aplicarLeyDeZipf(double percentil) {
-        // Si la lista está vacía o el percentil no es válido, no hacemos nada
-        if (indice.vacia() || percentil <= 0 || percentil >= 100) return;
-
-        // Ordenamos la lista de términos de mayor a menor frecuencia
-        // Se asume que ListaDobleCircular tiene un método ordenarPorFrecuencia()
-        indice.ordenarPorFrecuencia();
-
-        // Calculamos el número total de términos
-        int total = indice.contarNodos();
-        // Calculamos cuántos términos vamos a mantener según el percentil
-        int limite = (int)(total * (percentil / 100.0));
-
-        // Creamos un nuevo índice para almacenar solo los términos más frecuentes
-        ListaDobleCircular<TerminoEntry> nuevoIndice = new ListaDobleCircular<>();
-        Nodo<TerminoEntry> actual = indice.getRoot();
-
-        // Recorremos los términos hasta alcanzar el límite calculado
-        for (int i = 0; i < limite; i++) {
-            // Insertamos cada término en el nuevo índice
-            nuevoIndice.insertar(actual.getDato());
-            actual = actual.getSiguiente();
-        }
-
-        // Reemplazamos el índice original con el nuevo índice reducido
-        indice = nuevoIndice;
+        return new Vector(valores);
     }
 
     public double calcularIDF(String termino) {
-        int totalDocs = documentos.tamano();
-        if (totalDocs == 0) return 0;
-
-        TerminoEntry entrada = buscarEnIndice(termino);
-        if (entrada == null) return 0;
-
-        int docFreq = entrada.cuantosDocumentos();
-        if (docFreq == 0) return 0;
-
-        return Math.log((double) totalDocs / docFreq);
+        TerminoEntry t = buscarTermino(termino);
+        if (t == null) return 0;
+        return Math.log((double) documentos.tamano() / (1 + t.cuantosDocumentos()));
     }
 
-    public Vector obtenerVectorDocumento(String docId) {
-        //System.out.println("DEBUG - Construyendo vector para: " + docId);
+    // === Ley de Zipf ===
+    public void aplicarZipf(int percentilTop) {
+        int n = indice.tamano();
+        if (n == 0 || percentilTop <= 0) return;
+        if (percentilTop > 100) percentilTop = 100;
 
-        int size = indice.tamano();
-        Vector vector = new Vector(size);
+        int[] frec = new int[n];
+        TerminoEntry[] ref = new TerminoEntry[n];
+        int i = 0;
+        for (TerminoEntry t : indice) {
+            frec[i] = t.getVeces();
+            ref[i] = t;
+            i++;
+        }
 
-        Nodo<TerminoEntry> actual = indice.getRoot();
-        if (actual == null) return vector;
+        Ordenador.radixSortPareadoEnteros(frec, ref);
 
-        do {
-            TerminoEntry terminoEntry = actual.getDato();
-            int tf = terminoEntry.getFrecuenciaEnDocumento(docId);
-            double idf = calcularIDF(terminoEntry.getTermino());
+        int cortar = (percentilTop * n) / 100;
+        int dejar = n - cortar;
+        if (dejar < 0) dejar = 0;
 
-            //System.out.println("DEBUG - " + terminoEntry.getTermino() +
-                  // ": TF=" + tf + ", IDF=" + idf);
-
-            vector.insertar(tf * idf);
-
-            actual = actual.getSiguiente();
-        } while (actual != indice.getRoot());
-
-        return vector;
+        ListaDobleCircular<TerminoEntry> nuevo = new ListaDobleCircular<>();
+        for (int k = 0; k < dejar; k++) nuevo.insertar(ref[k]);
+        this.indice = nuevo;
     }
 
-    public void actualizarIndice(Arreglos.ListaDobleCircular<Arreglos.Documento> nuevosDocs) {
-        if (nuevosDocs == null || nuevosDocs.vacia()) return;
-
-        Arreglos.Nodo<Arreglos.Documento> actual = nuevosDocs.getRoot();
-        do {
-            procesarDocumento(actual.getDato()); // usa tu método privado existente
-            actual = actual.getSiguiente();
-        } while (actual != nuevosDocs.getRoot());
+    // === Guardar / Cargar índice en binario ===
+    public boolean guardarIndice(String ruta) {
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(ruta))) {
+            oos.writeObject(this);
+            return true;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
+    public static IndiceInvertido cargarIndice(String ruta) {
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(ruta))) {
+            instancia = (IndiceInvertido) ois.readObject();
+            return instancia;
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 
+    // === Getters ===
+    public ListaDobleCircular<TerminoEntry> getIndice() { return indice; }
+    public ListaDobleCircular<Documento> getDocumentos() { return documentos; }
 }

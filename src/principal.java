@@ -1,160 +1,127 @@
-import Arreglos.Documento;
-import Arreglos.ListaDobleCircular;
-import Arreglos.Nodo;
+import Arreglos.*;
 import Indice.*;
-import Persistencia.Archivos;
-import Persistencia.Serializar;
+import Utilidades.Ordenador;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.Scanner;
+
 public class principal {
+    private static Scanner sc = new Scanner(System.in);
+
     public static void main(String[] args) {
-        Scanner sc = new Scanner(System.in);
         IndiceInvertido indice = IndiceInvertido.getInstance();
         Buscador buscador = new Buscador(indice);
-        Serializar serializar = new Serializar();
-        Archivos gestorArchivos = new Archivos();
-        System.out.println("\t\t\tDIOS AYUDA");
-        System.out.println("\t\t\t¡Bienvenido al Sistema de Búsqueda!");
-        System.out.println("\tEste sistema te permitirá buscar términos dentro de documentos");
 
-        while (true) {
-            System.out.println("\n°°°°°°°°°°°°°°°°°°°°°° MENÚ PRINCIPAL °°°°°°°°°°°°°°°°°°°°°°");
-            System.out.println("1. Cargar documentos desde carpeta (crear índice)");
-            System.out.println("2. Actualizar índice con nuevos documentos");
-            System.out.println("3. Realizar una búsqueda");
-            System.out.println("4. Mostrar estadísticas del índice");
-            System.out.println("5. Aplicar Ley de Zipf");
-            System.out.println("6. Cambiar estrategia de similitud");
-            System.out.println("7. Guardar índice en archivo");
-            System.out.println("8. Cargar índice desde archivo");
+        boolean salir = false;
+        while (!salir) {
+            System.out.println("\n===== MENU =====");
+            System.out.println("1. Cargar documentos desde carpeta");
+            System.out.println("2. Construir índice invertido");
+            System.out.println("3. Realizar búsqueda");
+            System.out.println("4. Guardar índice");
+            System.out.println("5. Cargar índice");
+            System.out.println("6. Ver términos del índice");
             System.out.println("0. Salir");
-            System.out.print("Seleccione una opción: ");
-
-
-            int opcion;
-            try {
-                opcion = Integer.parseInt(sc.nextLine());
-            } catch (NumberFormatException e) {
-                System.out.println("Opción inválida. Intente de nuevo.");
-                continue;
-            }
+            System.out.print("Elige una opción: ");
+            int opcion = sc.nextInt();
+            sc.nextLine();
 
             switch (opcion) {
-                case 1 -> {
-                    System.out.print("Ingrese la ruta de la carpeta: ");
+                case 1:
+                    System.out.print("Ingresa la ruta de la carpeta con documentos .txt: ");
                     String ruta = sc.nextLine();
-                    ListaDobleCircular<Documento> docs = gestorArchivos.cargarDesdeCarpeta(ruta);
-                    if (docs.vacia()) {
-                        System.out.println("No se encontraron documentos válidos en la carpeta.");
-                    } else {
-                        indice.construirIndice(docs);
-                        System.out.println(" Índice construido con " + docs.tamano() + " documentos.");
-                    }
-                }
+                    ListaDobleCircular<Documento> docs = cargarDocumentos(ruta);
+                    indice.construirIndice(docs);
+                    System.out.println("Documentos cargados y añadidos.");
+                    break;
 
-                case 2 -> {
-                    System.out.print("Ingrese la ruta de la carpeta con nuevos documentos: ");
-                    String ruta = sc.nextLine();
-                    ListaDobleCircular<Documento> nuevos = gestorArchivos.cargarDesdeCarpeta(ruta);
-                    if (nuevos.vacia()) {
-                        System.out.println("No se encontraron nuevos documentos.");
-                    } else {
-                        indice.actualizarIndice(nuevos);
-                        System.out.println(" Índice actualizado con " + nuevos.tamano() + " documentos nuevos.");
-                    }
-                }
+                case 2:
+                    System.out.println("Construyendo índice invertido...");
+                    // si ya cargaste docs, el índice se construye en el paso anterior
+                    System.out.println("Índice creado con " + indice.getIndice().tamano() + " términos.");
+                    break;
 
-                case 3 -> {
-                    System.out.print("Ingrese su consulta de búsqueda: ");
+                case 3:
+                    System.out.print("Escribe tu consulta: ");
                     String consulta = sc.nextLine();
-                    if (consulta.trim().isEmpty()) {
-                        System.out.println("La consulta no puede estar vacía.");
+                    ListaDobleCircular<Documento> resultados = buscador.buscar(consulta);
+                    if (resultados.vacia()) {
+                        System.out.println("No se encontraron documentos.");
                     } else {
-                        ListaDobleCircular<Documento> resultados = buscador.buscar(consulta);
-                        if (resultados.vacia()) {
-                            System.out.println("No se encontraron resultados para: '" + consulta + "'");
-                        } else {
-                            System.out.println("\nResultados encontrados (ordenados por relevancia):");
-                            Nodo<Documento> actual = resultados.getRoot();
-                            int contador = 1;
-                            do {
-                                Documento doc = actual.getDato();
-                                System.out.println(contador + ". " + doc.getId() +
-                                        " - Relevancia: " + String.format("%.4f", doc.getRelevancia()));
-                                actual = actual.getSiguiente();
-                                contador++;
-                            } while (actual != resultados.getRoot());
+                        System.out.println("Resultados:");
+                        for (Documento d : resultados) {
+                            System.out.println(" - " + d.getId() + " (" + d.getRuta() + ")");
                         }
                     }
-                }
+                    break;
 
-                case 4 -> {
-                    System.out.println(indice.mostrarEstadisticas());
-                }
-
-                case 5 -> {
-                    System.out.print("Ingrese el percentil para aplicar la Ley de Zipf (0-100): ");
-                    try {
-                        double percentil = Double.parseDouble(sc.nextLine());
-                        if (percentil > 0 && percentil < 100) {
-                            indice.aplicarLeyDeZipf(percentil);
-                            System.out.println("Ley de Zipf aplicada con percentil: " + percentil + "%");
-                        } else {
-                            System.out.println("El percentil debe estar entre 0 y 100.");
-                        }
-                    } catch (NumberFormatException e) {
-                        System.out.println("Valor inválido. Debe ingresar un número.");
-                    }
-                }
-
-                case 6 -> {
-                    System.out.println("Seleccione la estrategia de similitud:");
-                    System.out.println("1. Similitud Coseno (recomendado)");
-                    System.out.println("2. Producto Punto");
-                    System.out.print("Opción: ");
-
-                    try {
-                        int opcionEstrategia = Integer.parseInt(sc.nextLine());
-                        if (opcionEstrategia == 1) {
-                            buscador.setEstrategia(new SimilitudCoseno());
-                            System.out.println("Estrategia cambiada a: Similitud Coseno");
-                        } else if (opcionEstrategia == 2) {
-                            buscador.setEstrategia(new SimilitudProductoPunto());
-                            System.out.println(" Estrategia cambiada a: Producto Punto");
-                        } else {
-                            System.out.println(" Opción no válida.");
-                        }
-                    } catch (NumberFormatException e) {
-                        System.out.println("Opción inválida.");
-                    }
-                }
-
-                case 7 -> {
-                    if (serializar.guardarObjeto("indice.dat", indice)) {
-                        System.out.println(" Índice guardado correctamente en 'indice.dat'");
+                case 4:
+                    System.out.print("Nombre del archivo binario para guardar: ");
+                    String archivoGuardar = sc.nextLine();
+                    if (indice.guardarIndice(archivoGuardar)) {
+                        System.out.println("Índice guardado en " + archivoGuardar);
                     } else {
-                        System.out.println(" Error al guardar el índice.");
+                        System.out.println("Error al guardar el índice.");
                     }
-                }
+                    break;
 
-                case 8 -> {
-                    Object objetoCargado = serializar.cargarObjeto("indice.dat");
-                    if (objetoCargado instanceof IndiceInvertido) {
-                        indice = (IndiceInvertido) objetoCargado;
+                case 5:
+                    System.out.print("Nombre del archivo binario a cargar: ");
+                    String archivoCargar = sc.nextLine();
+                    IndiceInvertido cargado = IndiceInvertido.cargarIndice(archivoCargar);
+                    if (cargado != null) {
+                        indice = cargado;
                         buscador = new Buscador(indice);
-                        System.out.println(" Índice cargado correctamente desde 'indice.dat'");
+                        System.out.println("Índice cargado correctamente.");
                     } else {
-                        System.out.println(" No se pudo cargar el índice o el archivo no existe.");
+                        System.out.println("Error al cargar índice.");
                     }
-                }
+                    break;
 
-                case 0 -> {
-                    System.out.println("Gracias por usar el sistema. ¡Hasta pronto!");
-                    return;
-                }
+                case 6:
+//                    System.out.println("Términos en el índice:");
+//                    TerminoEntry[] arr = indice.toArrayOrdenado();
+//                    for (int i = 0; i < arr.length; i++) {
+//                        System.out.println(arr[i]);
+//                    }
+//                    break;
 
-                default -> System.out.println(" Opción inválida. Intente de nuevo.");
+                case 0:
+                    salir = true;
+                    System.out.println("Saliendo...");
+                    break;
+
+                default:
+                    System.out.println("Opción inválida.");
             }
         }
+    }
+
+    // ==========================
+    // Métodos de apoyo
+    // ==========================
+
+    private static ListaDobleCircular<Documento> cargarDocumentos(String rutaCarpeta) {
+        ListaDobleCircular<Documento> docs = new ListaDobleCircular<>();
+        File carpeta = new File(rutaCarpeta);
+        if (!carpeta.exists() || !carpeta.isDirectory()) {
+            System.out.println("La ruta no es válida.");
+            return docs;
+        }
+        File[] archivos = carpeta.listFiles((dir, name) -> name.endsWith(".txt"));
+        if (archivos != null) {
+            for (File f : archivos) {
+                try {
+                    String contenido = new String(Files.readAllBytes(f.toPath()));
+                    Documento d = new Documento(f.getName(), contenido, f.getAbsolutePath());
+                    docs.insertar(d);
+                } catch (IOException e) {
+                    System.out.println("Error al leer archivo: " + f.getName());
+                }
+            }
+        }
+        return docs;
     }
 }
