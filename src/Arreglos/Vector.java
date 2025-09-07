@@ -1,10 +1,7 @@
 package Arreglos;
 
-import java.io.Serializable;
-
-public class Vector implements Serializable {
+public class Vector {
     private double[] vector;
-    private int tam;
     private int size;
 
     // Constructor para inicializar con arreglo ya existente
@@ -70,15 +67,4 @@ public class Vector implements Serializable {
     public double[] getArray() {
         return vector;
     }
-
-    public String mostrar() {
-        StringBuilder sb = new StringBuilder("[");
-        for (int i = 0; i < size; i++) {
-            sb.append(vector[i]);
-            if (i < size - 1) sb.append(", ");
-        }
-        sb.append("]");
-        return sb.toString();
-    }
-
 }

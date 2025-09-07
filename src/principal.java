@@ -1,7 +1,5 @@
 import Arreglos.*;
 import Indice.*;
-import Utilidades.Ordenador;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -39,20 +37,23 @@ public class principal {
 
                 case 2:
                     System.out.println("Construyendo índice invertido...");
-                    // si ya cargaste docs, el índice se construye en el paso anterior
                     System.out.println("Índice creado con " + indice.getIndice().tamano() + " términos.");
                     break;
 
                 case 3:
                     System.out.print("Escribe tu consulta: ");
                     String consulta = sc.nextLine();
-                    ListaDobleCircular<Documento> resultados = buscador.buscar(consulta);
+                    ListaDobleCircular<ResultadoBusqueda> resultados = buscador.buscar(consulta);
+
                     if (resultados.vacia()) {
                         System.out.println("No se encontraron documentos.");
                     } else {
                         System.out.println("Resultados:");
-                        for (Documento d : resultados) {
-                            System.out.println(" - " + d.getId() + " (" + d.getRuta() + ")");
+                        for (ResultadoBusqueda r : resultados) {
+                            // Solo imprime los que tienen similitud > 0 (ya filtrado en Buscador)
+                            System.out.printf(" - %s | Similitud: %.3f%n",
+                                    r.getDocumento().getId(),
+                                    r.getSimilitud());
                         }
                     }
                     break;
@@ -81,12 +82,9 @@ public class principal {
                     break;
 
                 case 6:
-//                    System.out.println("Términos en el índice:");
-//                    TerminoEntry[] arr = indice.toArrayOrdenado();
-//                    for (int i = 0; i < arr.length; i++) {
-//                        System.out.println(arr[i]);
-//                    }
-//                    break;
+                    // Si quieres mostrar términos, aquí puedes agregar un recorrido del índice
+                    System.out.println("Opción no implementada.");
+                    break;
 
                 case 0:
                     salir = true;

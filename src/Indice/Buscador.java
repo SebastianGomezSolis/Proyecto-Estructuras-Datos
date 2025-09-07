@@ -15,12 +15,12 @@ public class Buscador {
         this.indice = indice;
     }
 
-    public ListaDobleCircular<Documento> buscar(String consulta) {
+    public ListaDobleCircular<ResultadoBusqueda> buscar(String consulta) {
         // limpiar consulta con stopwords (aquí puedes pasar null si no usas)
         String[] terminos = procesar.limpiar(consulta, STOPWORDS);
         Vector vectorConsulta = vecConsulta(terminos);
 
-        ListaDobleCircular<Documento> resultados = new ListaDobleCircular<>();
+        ListaDobleCircular<ResultadoBusqueda> resultados = new ListaDobleCircular<>();
         int n = indice.getDocumentos().tamano();
 
         if (n == 0) return resultados;
@@ -61,7 +61,7 @@ public class Buscador {
         Ordenador.radixSortPareadoEnteros(simsEnteros, idx);
 
         for (int k = count - 1; k >= 0; k--) {
-            resultados.insertar(docsValidos[idx[k]]);
+            resultados.insertar(new ResultadoBusqueda(docsValidos[idx[k]],simsValidos[idx[k]]));
         }
 
         return resultados;

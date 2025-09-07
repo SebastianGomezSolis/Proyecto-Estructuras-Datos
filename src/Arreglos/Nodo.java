@@ -1,6 +1,7 @@
 package Arreglos;
 
 import java.io.Serializable;
+import java.util.Iterator;
 
 public class Nodo<T> implements Serializable {
     private T dato;
@@ -13,29 +14,11 @@ public class Nodo<T> implements Serializable {
         this.anterior = anterior;
     }
 
-    public T getDato() {
-        return dato;
-    }
+    public T getDato() { return dato; }
+    public Nodo<T> getSiguiente() { return siguiente; }
+    public Nodo<T> getAnterior() { return anterior; }
 
-    public Nodo<T> getSiguiente() {
-        return siguiente;
-    }
-
-    public Nodo<T> getAnterior() {
-        return anterior;
-    }
-
-    public void setDato(T dato) {
-        this.dato = dato;
-    }
-
-    public void setSiguiente(Nodo<T> siguiente) {
-        this.siguiente = siguiente;
-    }
-
-    public void setAnterior(Nodo<T> anterior) {
-        this.anterior = anterior;
-    }
-
-
+    public void setDato(T dato) { this.dato = dato; }
+    public void setSiguiente(Nodo<T> siguiente) { this.siguiente = siguiente; }
+    public void setAnterior(Nodo<T> anterior) { this.anterior = anterior; }
 }
