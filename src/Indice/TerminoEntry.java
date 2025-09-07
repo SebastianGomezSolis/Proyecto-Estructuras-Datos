@@ -39,4 +39,6 @@ public class TerminoEntry implements Serializable {
     public int cuantosDocumentos() { return posteos.tamano(); }
     public int getVeces() { return veces; }
     public ListaDobleCircular<Posteo> getPosteos() { return posteos; }
+
+    public void setVeces(int veces) {this.veces = veces;}
 }

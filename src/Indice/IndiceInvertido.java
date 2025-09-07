@@ -110,7 +110,7 @@ public class IndiceInvertido implements Serializable {
         this.indice = nuevo;
     }
 
-    // === Guardar / Cargar índice en binario ===
+   /* // === Guardar / Cargar índice en binario ===
     public boolean guardarIndice(String ruta) {
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(ruta))) {
             oos.writeObject(this);
@@ -130,8 +130,76 @@ public class IndiceInvertido implements Serializable {
             return null;
         }
     }
+*/
+   // === Guardar / Cargar índice en binario ===
+   public boolean guardarIndice(String archivo) {
+       try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(archivo))) {
+           // Guardar documentos
+           oos.writeInt(documentos.tamano());
+           for (Documento doc : documentos) {
+               oos.writeObject(doc);
+           }
+
+           // Guardar términos
+           oos.writeInt(indice.tamano());
+           for (TerminoEntry entry : indice) {
+               oos.writeUTF(entry.getTermino());
+               oos.writeInt(entry.getVeces());
+
+               // Guardar posteos
+               oos.writeInt(entry.getPosteos().tamano());
+               for (Posteo p : entry.getPosteos()) {
+                   oos.writeObject(p);
+               }
+           }
+
+           return true;
+       } catch (IOException e) {
+           e.printStackTrace();
+           return false;
+       }
+   }
+
+    public static IndiceInvertido cargarIndice(String archivo) {
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(archivo))) {
+            IndiceInvertido indice = new IndiceInvertido();
+
+            // Cargar documentos
+            int numDocs = ois.readInt();
+            for (int i = 0; i < numDocs; i++) {
+                Documento doc = (Documento) ois.readObject();
+                indice.documentos.insertar(doc);
+            }
+
+            // Cargar términos
+            int numTerms = ois.readInt();
+            for (int i = 0; i < numTerms; i++) {
+                String termino = ois.readUTF();
+                int veces = ois.readInt();
+
+                TerminoEntry entry = new TerminoEntry(termino);
+                entry.setVeces(veces);
+
+                int n = ois.readInt();
+                for (int j = 0; j < n; j++) {
+                    Posteo p = (Posteo) ois.readObject();
+                    entry.getPosteos().insertar(p);
+                }
+
+                indice.indice.insertar(entry);
+            }
+
+            return indice;
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 
     // === Getters ===
     public ListaDobleCircular<TerminoEntry> getIndice() { return indice; }
     public ListaDobleCircular<Documento> getDocumentos() { return documentos; }
+    // === Setters ===
+    public void setIndice(ListaDobleCircular<TerminoEntry> nuevoIndice) {this.indice = nuevoIndice;}
+    public void setDocumentos(ListaDobleCircular<Documento> nuevosDocs) {this.documentos = nuevosDocs;}
 }

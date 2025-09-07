@@ -10,9 +10,11 @@ public class Serializar {
         try (ObjectOutputStream os = new ObjectOutputStream(new FileOutputStream(ruta))) {
             os.writeObject(objeto);
             return true;
-        } catch (IOException e) {
-            return false;
-        }
+        }catch (IOException e) {
+                System.out.println("Error al guardar objeto: " + e.getMessage());
+                e.printStackTrace(); // te muestra la línea exacta del error
+                return false;
+            }
     }
 
     public Object cargarObjeto(String ruta) {

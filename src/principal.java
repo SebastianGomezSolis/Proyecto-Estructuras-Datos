@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Scanner;
+import Persistencia.Serializar;
 //MARTA
 public class principal {
     private static Scanner sc = new Scanner(System.in);
@@ -50,13 +51,13 @@ public class principal {
                     } else {
                         System.out.println("Resultados:");
                         for (ResultadoBusqueda r : resultados) {
-                            // Solo imprime los que tienen similitud > 0 (ya filtrado en Buscador)
                             System.out.printf(" - %s | Similitud: %.3f%n",
                                     r.getDocumento().getId(),
                                     r.getSimilitud());
                         }
                     }
                     break;
+
 
                 case 4:
                     System.out.print("Nombre del archivo binario para guardar: ");
@@ -82,8 +83,20 @@ public class principal {
                     break;
 
                 case 6:
-                    // Si quieres mostrar términos, aquí puedes agregar un recorrido del índice
-                    System.out.println("Opción no implementada.");
+                    System.out.println("=== Términos del índice ===");
+                    int i = 1;
+                    for (TerminoEntry t : indice.getIndice()) {
+                        System.out.print(i + ". " + t.getTermino() + " (Veces: " + t.getVeces() + ")");
+
+                        // Mostrar documentos donde aparece
+                        System.out.print(" [Documentos: ");
+                        for (Posteo p : t.getPosteos()) {
+                            System.out.print(p.getDocId() + "(" + p.getTf() + ") ");
+                        }
+                        System.out.println("]");
+                        i++;
+                    }
+                    System.out.println("==========================");
                     break;
 
                 case 0:
