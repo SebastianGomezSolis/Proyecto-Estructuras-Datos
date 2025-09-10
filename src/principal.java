@@ -5,7 +5,14 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Scanner;
 import Persistencia.Serializar;
-//MARTA
+
+
+// Main que gestiona la interacción con el usuario:
+// - Cargar documentos
+// - Construir índice
+// - Aplicar Ley de Zipf (pregunta al usuario el percentil a eliminar)
+// - Realizar búsquedas
+// - Guardar/cargar índice
 public class principal {
     private static Scanner sc = new Scanner(System.in);
 
@@ -18,10 +25,11 @@ public class principal {
             System.out.println("\n===== MENU =====");
             System.out.println("1. Cargar documentos desde carpeta");
             System.out.println("2. Construir índice invertido");
-            System.out.println("3. Realizar búsqueda");
-            System.out.println("4. Guardar índice");
-            System.out.println("5. Cargar índice");
-            System.out.println("6. Ver términos del índice");
+            System.out.println("3. Aplicar ley de Zipf");
+            System.out.println("4. Realizar búsqueda");
+            System.out.println("5. Guardar índice");
+            System.out.println("6. Cargar índice");
+            System.out.println("7. Ver términos del índice");
             System.out.println("0. Salir");
             System.out.print("Elige una opción: ");
             int opcion = sc.nextInt();
@@ -42,6 +50,32 @@ public class principal {
                     break;
 
                 case 3:
+                    int percentil = -1;
+                    while (true) {
+                        System.out.print("Ingrese percentil a eliminar (0–10): ");
+                        String linea = sc.nextLine().trim();
+                        try {
+                            percentil = Integer.parseInt(linea);
+                        } catch (NumberFormatException e) {
+                            System.out.println("Ingrese un número entero");
+                            continue;
+                        }
+                        if (percentil >= 0 && percentil <= 10) break;
+                        System.out.println("Debe estar entre 0 y 10.");
+                    }
+
+                    if (percentil > 0) {
+                        int antes = indice.getIndice().tamano();
+                        indice.aplicarZipf(percentil); // aplicar Zipf con percentil
+                        int despues = indice.getIndice().tamano();
+                        System.out.println("Se eliminaron " + (antes - despues) + " términos.");
+                        System.out.println("Índice después de aplicar Zipf: " + despues + " términos.");
+                    } else {
+                        System.out.println("Percentil 0: no se eliminarán términos.");
+                    }
+                    break;
+
+                case 4:
                     System.out.print("Escribe tu consulta: ");
                     String consulta = sc.nextLine();
                     ListaDobleCircular<ResultadoBusqueda> resultados = buscador.buscar(consulta);
@@ -59,7 +93,7 @@ public class principal {
                     break;
 
 
-                case 4:
+                case 5:
                     System.out.print("Nombre del archivo binario para guardar: ");
                     String archivoGuardar = sc.nextLine();
                     if (indice.guardarIndice(archivoGuardar)) {
@@ -69,7 +103,7 @@ public class principal {
                     }
                     break;
 
-                case 5:
+                case 6:
                     System.out.print("Nombre del archivo binario a cargar: ");
                     String archivoCargar = sc.nextLine();
                     IndiceInvertido cargado = IndiceInvertido.cargarIndice(archivoCargar);
@@ -82,7 +116,7 @@ public class principal {
                     }
                     break;
 
-                case 6:
+                case 7:
                     System.out.println("=== Términos del índice ===");
                     int i = 1;
                     for (TerminoEntry t : indice.getIndice()) {

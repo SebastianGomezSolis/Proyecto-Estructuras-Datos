@@ -25,7 +25,6 @@ public class Ordenador {
     }
 
     // ------------ RADIX PAREADO (enteros + Object[]) ------------
-    // mantiene la versión que reordena un arreglo paralelo de objetos (ya la tenías)
     public static void radixSortPareadoEnteros(int[] arr, Object[] aux) {
         if (arr == null || arr.length <= 1) return;
         int max = getMax(arr);
@@ -54,7 +53,6 @@ public class Ordenador {
     }
 
     // ------------ NUEVO: RADIX PAREADO (enteros + int[]) ------------
-    // sobrecarga para reordenar un arreglo paralelo de enteros (p. ej. índices)
     public static void radixSortPareadoEnteros(int[] arr, int[] aux) {
         if (arr == null || arr.length <= 1) return;
         if (aux == null || aux.length != arr.length) throw new IllegalArgumentException("Aux debe tener mismo tamaño que arr");

@@ -19,7 +19,7 @@ public class Vector {
     // Insertar un valor al final
     public void insertar(double dato) {
         if (size == vector.length) {
-            double[] nuevo = new double[size * 2 + 1]; // +1 por seguridad si size=0
+            double[] nuevo = new double[size * 2 + 1]; // +1 por seguridad si size = 0
             System.arraycopy(vector, 0, nuevo, 0, size);
             vector = nuevo;
         }
@@ -59,12 +59,9 @@ public class Vector {
     public int getSize() {
         return size;
     }
-
-    public double get(int i) {
-        return vector[i];
-    }
-
+    public double get(int i) { return vector[i]; }
     public double[] getArray() {
         return vector;
     }
+
 }
