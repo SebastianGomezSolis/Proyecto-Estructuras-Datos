@@ -22,7 +22,7 @@ public class Buscador {
         this.indice = indice;
     }
 
-    // Método principal para realizar una búsqueda a partir de una cadena de texto (consulta)
+    // Metodo principal para realizar una búsqueda a partir de una cadena de texto (consulta)
     public ListaDobleCircular<ResultadoBusqueda> buscar(String consulta) {
 
         // 1. Limpiar la consulta (eliminar stopwords, etc.)
