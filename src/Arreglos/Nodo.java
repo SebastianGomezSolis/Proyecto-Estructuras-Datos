@@ -1,7 +1,5 @@
 package Arreglos;
-
 import java.io.Serializable;
-import java.util.Iterator;
 
 public class Nodo<T> implements Serializable {
     private T dato;

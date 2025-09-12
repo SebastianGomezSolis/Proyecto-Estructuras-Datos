@@ -1,6 +1,3 @@
-// ==========================
-// Package: Arreglos
-// ==========================
 package Arreglos;
 
 import java.io.Serializable;

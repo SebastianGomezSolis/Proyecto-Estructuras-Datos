@@ -1,11 +1,7 @@
 import Arreglos.*;
 import Indice.*;
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.util.Scanner;
-import Persistencia.Serializar;
-
+import Persistencia.Archivos;
 
 // Main que gestiona la interacción con el usuario:
 // - Cargar documentos
@@ -13,12 +9,15 @@ import Persistencia.Serializar;
 // - Aplicar Ley de Zipf (pregunta al usuario el percentil a eliminar)
 // - Realizar búsquedas
 // - Guardar/cargar índice
+
+
 public class principal {
     private static Scanner sc = new Scanner(System.in);
 
     public static void main(String[] args) {
         IndiceInvertido indice = IndiceInvertido.getInstance();
         Buscador buscador = new Buscador(indice);
+        Archivos arch = new Archivos();
 
         boolean salir = false;
         while (!salir) {
@@ -36,13 +35,18 @@ public class principal {
             sc.nextLine();
 
             switch (opcion) {
-                case 1:
-                    System.out.print("Ingresa la ruta de la carpeta con documentos .txt: ");
+                case 1: {
+                    System.out.print("Ingresa la ruta de la carpeta: ");
                     String ruta = sc.nextLine();
-                    ListaDobleCircular<Documento> docs = cargarDocumentos(ruta);
-                    indice.construirIndice(docs);
-                    System.out.println("Documentos cargados y añadidos.");
+
+                    ListaDobleCircular<Documento> docs = arch.cargarDocumentos(ruta);
+
+                    if (!docs.vacia()) {
+                        indice.construirIndice(docs);
+                        System.out.println("Documentos cargados y enviados al índice.");
+                    }
                     break;
+                }
 
                 case 2:
                     System.out.println("Construyendo índice invertido...");
@@ -148,7 +152,7 @@ public class principal {
     // Métodos de apoyo
     // ==========================
 
-    private static ListaDobleCircular<Documento> cargarDocumentos(String rutaCarpeta) {
+    /*private static ListaDobleCircular<Documento> cargarDocumentos(String rutaCarpeta) {
         ListaDobleCircular<Documento> docs = new ListaDobleCircular<>();
         File carpeta = new File(rutaCarpeta);
         if (!carpeta.exists() || !carpeta.isDirectory()) {
@@ -168,5 +172,5 @@ public class principal {
             }
         }
         return docs;
-    }
+    }*/
 }

@@ -1,7 +1,6 @@
 package Arreglos;
 
 import java.io.Serializable;
-import java.util.Comparator;
 import java.util.Iterator;
 
 public class ListaDobleCircular<T> implements Iterable<T>, Serializable {
@@ -38,36 +37,6 @@ public class ListaDobleCircular<T> implements Iterable<T>, Serializable {
             actual = actual.getSiguiente();
         } while (actual != root);
         return contador;
-    }
-
-    public void insertarOrdenado(Comparator<T> comparador, T dato) {
-        Nodo<T> nuevo = new Nodo<>(dato, null, null);
-        if (vacia()) {
-            root = nuevo;
-            root.setSiguiente(root);
-            root.setAnterior(root);
-            return;
-        }
-
-        Nodo<T> actual = root;
-        do {
-            if (comparador.compare(dato, actual.getDato()) < 0) {
-                Nodo<T> ant = actual.getAnterior();
-                nuevo.setSiguiente(actual);
-                nuevo.setAnterior(ant);
-                ant.setSiguiente(nuevo);
-                actual.setAnterior(nuevo);
-                if (actual == root) root = nuevo;
-                return;
-            }
-            actual = actual.getSiguiente();
-        } while (actual != root);
-
-        Nodo<T> cola = root.getAnterior();
-        nuevo.setSiguiente(root);
-        nuevo.setAnterior(cola);
-        cola.setSiguiente(nuevo);
-        root.setAnterior(nuevo);
     }
 
     @Override

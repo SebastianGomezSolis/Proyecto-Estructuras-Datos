@@ -20,8 +20,7 @@ public class Vector {
     public void insertar(double dato) {
         if (size == vector.length) {
             double[] nuevo = new double[size * 2 + 1]; // +1 por seguridad si size = 0
-            System.arraycopy(vector, 0, nuevo, 0, size);
-            vector = nuevo;
+            System.arraycopy(vector, 0, nuevo, 0, size); // función nativa de Java para copiar elementos de un arreglo a otro
         }
         vector[size++] = dato;
     }
